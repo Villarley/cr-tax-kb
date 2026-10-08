@@ -22,9 +22,9 @@ sources:
 ---
 ```
 
-3. Add the fact as a self-contained `## ` section, citing the article or resolution number in the text.
+3. Add the fact as a self-contained `## ` section, citing the article or resolution number in the text. Under the heading add `<!-- es: ... -->` with Spanish search terms for that section (how a client would ask about it).
 4. Add the source to [SOURCES.md](SOURCES.md) and remove the gap if it is now filled.
-5. Add a question to `eval/questions.json` that should retrieve the document.
+5. Add a question to `eval/questions.json` (expects a document id) and one to `eval/sections.json` (expects a chunk id such as `iva-exports#2`).
 6. Run `PYTHONPATH=src python3 -m cr_tax_kb.cli export` and `python3 -m unittest discover -s tests`.
 
 When a rule changes (new year's brackets, a new resolution), update the section, bump `as_of`, and keep the old value in a short "Previous" line if clients may still file for that year.

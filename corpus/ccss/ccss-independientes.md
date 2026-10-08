@@ -28,10 +28,12 @@ sources:
 # CCSS social security for independent workers
 
 ## Obligation
+<!-- es: obligación de afiliarse a la CCSS como trabajador independiente, seguro de salud SEM y pensiones IVM, ingreso de referencia, cobros retroactivos -->
 
 Independent workers (trabajadores independientes) with income must be affiliated with the CCSS and contribute to health and maternity (SEM) and pensions (IVM) on a declared reference income (ingreso de referencia). The state subsidizes part of the contribution; the lower the income bracket, the larger the subsidy. The CCSS has used tax information from Hacienda to compute retroactive charges for unregistered independents, which has been litigated (Abogado Tributario, 2026).
 
 ## Contribution scale (total worker rate, as reported in May 2026)
+<!-- es: escala de cotización CCSS para independientes por ingreso, porcentajes 7,05% 9,98% 13,77% 16% 19,11%, cuánto pago a la Caja -->
 
 | Monthly reference income (₡) | Total rate |
 | --- | --- |
@@ -46,10 +48,12 @@ Source: Abogado Tributario (secondary). The SEM and IVM split is not given. Conf
 In February 2025 the Sala Constitucional (Sala IV) upheld that independent workers may contribute at higher rates than salaried employees (Delfino).
 
 ## Base mínima contributiva (BMC)
+<!-- es: base mínima contributiva BMC, monto mínimo de cotización, tiempo parcial -->
 
 The BMC is the minimum income on which contributions are computed. In 2022 the CCSS approved a reduced BMC of ₡153,500 (half the full-time ₡307,000 of that time) for **part-time salaried employees**, phased in for SEM by age from 2023 to 2025, with IVM credited proportionally (EY). That reform did not cover independents. Current BMC amounts change yearly; take them from the CCSS.
 
 ## Relevance to Fact3
+<!-- es: riesgo de que la CCSS reclasifique contratistas como empleados, subordinación, cuotas patronales retroactivas, CCSS deducible de renta -->
 
 - Each contractor client (for example GrantFox's 7 contractors) must handle their own CCSS as independents; Fact3 can estimate the monthly contribution from declared income, but the CCSS bills it.
 - **Reclassification risk:** if a "contractor" works under subordination (fixed hours, exclusivity, direction by the company), the CCSS can treat the relationship as employment and charge the company employer contributions retroactively. Flag this to company clients that rely on many full-time contractors.

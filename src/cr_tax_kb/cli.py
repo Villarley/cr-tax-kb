@@ -58,15 +58,20 @@ def llms_txt(kb):
 
 
 def run_eval(kb, k=3):
-    qs = json.loads((REPO_ROOT / "eval" / "questions.json").read_text(encoding="utf-8"))
-    hits = 0
-    for item in qs:
-        got = [h["doc_id"] for h in kb.search(item["q"], k)]
-        ok = item["expect"] in got
-        hits += ok
-        print(f"{'OK  ' if ok else 'MISS'} {item['q']} -> {got}")
-    print(f"\nTop-{k} hit rate: {hits}/{len(qs)}")
-    return hits, len(qs)
+    """Document-level (eval/questions.json) and section-level (eval/sections.json) hit rates."""
+    total_hits = total = 0
+    for name, key in (("questions.json", "doc_id"), ("sections.json", "chunk_id")):
+        qs = json.loads((REPO_ROOT / "eval" / name).read_text(encoding="utf-8"))
+        hits = 0
+        for item in qs:
+            got = [h[key] for h in kb.search(item["q"], k)]
+            ok = item["expect"] in got
+            hits += ok
+            if not ok:
+                print(f"MISS [{name}] {item['q']} -> expected {item['expect']}, got {got}")
+        print(f"{name}: top-{k} hit rate {hits}/{len(qs)}")
+        total_hits, total = total_hits + hits, total + len(qs)
+    return total_hits, total
 
 
 def main(argv=None):

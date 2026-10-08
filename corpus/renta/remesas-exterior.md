@@ -20,10 +20,12 @@ sources:
 # Withholding on payments abroad (remesas al exterior)
 
 ## When it applies
+<!-- es: cuándo retener al pagar a no domiciliados, impuesto sobre remesas al exterior, pagar a proveedor o contratista extranjero -->
 
 When a Costa Rican payer (company or individual with an activity) pays, credits or makes available Costa Rican-source income to a **non-resident**, the payer must withhold the impuesto sobre remesas al exterior (art. 59, Ley 7092) and pay it to Hacienda. The DGT crypto ruling also says that a non-resident providing services with a direct effect in Costa Rica to a resident triggers this tax.
 
 ## Rates (art. 59, as summarized by Siempre al Día)
+<!-- es: tarifas de retención por remesas, honorarios 25%, asesoría técnica 25%, regalías 25%, intereses 15%, dividendos, tarifa residual 30% -->
 
 | Concept | Rate on gross amount |
 | --- | --- |
@@ -37,10 +39,12 @@ When a Costa Rican payer (company or individual with an activity) pays, credits 
 There is no general 15% rate for any remittance; services without a specific category fall into the 30% residual rate.
 
 ## Filing
+<!-- es: cómo declarar y pagar la retención de remesas, formularios 140 141 142, informativas 210 211 212, plazo 15 días -->
 
 Pay within the first 15 calendar days of the month after the payment or credit. TRIBU-CR forms by withholding agent: **140** (individual), **141** (legal entity), **142** (public entity); informative returns 210, 211, 212. Keep supporting documents 5 years (art. 109 CNPT).
 
 ## Relevance to Fact3
+<!-- es: empresas web3 que pagan a extranjeros, freelancer tico que cobra a empresa extranjera no sufre retención -->
 
 - Web3 companies with a Costa Rican entity that pay foreign contractors or foreign SaaS must consider remittance withholding (and IVA reverse charge via factura electrónica de compra, see [[iva-general]]).
 - The reverse case, a foreign company paying a Costa Rican freelancer, involves no Costa Rican withholding: the freelancer self-reports the income (ISU) and issues an export invoice (see [[iva-exports]]).

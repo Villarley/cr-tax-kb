@@ -24,6 +24,7 @@ sources:
 # Legal hierarchy, binding force and where official texts live
 
 ## Hierarchy of tax norms
+<!-- es: jerarquía de normas tributarias, Constitución, leyes, reglamentos, decretos ejecutivos, resoluciones generales de la DGT, oficios, qué norma prevalece, Ley 9635, Ley 7092, Código de Normas y Procedimientos Tributarios -->
 
 Answer tax questions by citing the highest norm that settles them, in this order:
 
@@ -38,14 +39,17 @@ Answer tax questions by citing the highest norm that settles them, in this order
 5. **Oficios / respuestas a consultas** (MH-DGT-OF-NNNN-YYYY): DGT answers to a specific taxpayer's question.
 
 ## Binding force of DGT consultations
+<!-- es: respuestas de la Dirección General de Tributación a consultas, son vinculantes u obligatorias, criterio informativo, artículo 119 CNPT, oficio no vinculante -->
 
 Under article 119 of the CNPT, DGT answers to consultations of the general kind are **informative, not binding** ("tienen un carácter informativo"). Fact3 can rely on them as the administration's stated view (for example the crypto ruling MH-DGT-OF-0460-2023), but must flag them as non-binding in any client-facing advice and keep classification rules configurable.
 
 ## Record keeping
+<!-- es: conservar registros contables y comprobantes, cuántos años guardar facturas y contabilidad, cinco años, artículo 109 CNPT, prescripción -->
 
 Article 109 of the CNPT requires keeping accounting records and their supporting documents for **5 years**. Fact3 should keep invoice XML, Hacienda responses, filing receipts and ledger sources for at least that long (the MVP plan already assumes 5 years of object storage).
 
 ## Where to get official texts
+<!-- es: dónde encontrar el texto oficial de leyes y decretos, SCIJ, La Gaceta, Imprenta Nacional, sitio de Hacienda, CCSS, normativa vigente -->
 
 | Source | What | URL |
 | --- | --- | --- |
