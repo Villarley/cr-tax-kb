@@ -1,0 +1,20 @@
+[
+  {"q": "¿Cobro IVA si le facturo a un cliente en Estados Unidos por desarrollo de software?", "expect": "iva-exports"},
+  {"q": "¿Cuál es la tarifa general del IVA?", "expect": "iva-general"},
+  {"q": "¿Qué día vence la declaración mensual del IVA?", "expect": "calendar"},
+  {"q": "Tramos de renta 2026 para persona física con actividad lucrativa", "expect": "renta-territoriality"},
+  {"q": "¿Cuánto paga una pyme persona jurídica de impuesto sobre la renta?", "expect": "renta-territoriality"},
+  {"q": "¿Cómo tributa la venta de bitcoin que tengo como inversión?", "expect": "crypto-assets"},
+  {"q": "Me pagan en USDC por mi trabajo, ¿qué impuesto aplica?", "expect": "crypto-assets"},
+  {"q": "¿Cuál formulario reemplazó al D-104 en TRIBU-CR?", "expect": "tribu-cr"},
+  {"q": "¿Desde cuándo es obligatoria la factura electrónica 4.4?", "expect": "facturacion-electronica-v44"},
+  {"q": "¿Qué es el recibo electrónico de pago?", "expect": "facturacion-electronica-v44"},
+  {"q": "Retención por pagar honorarios a un proveedor no domiciliado", "expect": "remesas-exterior"},
+  {"q": "¿Cuánto cotiza a la CCSS un trabajador independiente?", "expect": "ccss-independientes"},
+  {"q": "Ganancia de capital por vender un inmueble comprado antes de 2019", "expect": "renta-capital"},
+  {"q": "¿Puede un desarrollador freelance entrar al régimen simplificado?", "expect": "regimen-simplificado"},
+  {"q": "¿Son vinculantes las respuestas de la DGT a consultas?", "expect": "authority-and-sources"},
+  {"q": "¿Cuánto tiempo debo guardar las facturas?", "expect": "authority-and-sources"},
+  {"q": "Pagos parciales del impuesto sobre la renta fechas", "expect": "calendar"},
+  {"q": "Compré un servicio de software a una empresa extranjera, ¿qué factura emito?", "expect": "facturacion-electronica-v44"}
+]

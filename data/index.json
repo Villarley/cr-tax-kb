@@ -1,0 +1,361 @@
+{
+  "name": "cr-tax-kb",
+  "description": "Costa Rica tax and accounting knowledge base",
+  "documents": [
+    {
+      "id": "ccss-independientes",
+      "title": "CCSS social security for independent workers",
+      "topic": "ccss",
+      "path": "corpus/ccss/ccss-independientes.md",
+      "as_of": "2026-10-08",
+      "effective_from": "",
+      "status": "vigente (escala por confirmar con la CCSS)",
+      "verified": "secondary",
+      "keywords_es": "CCSS, Caja Costarricense de Seguro Social, trabajador independiente, cotización, SEM, IVM, seguro de enfermedad y maternidad, invalidez vejez y muerte, escala contributiva, ingreso de referencia, base mínima contributiva, BMC, Sala IV, cobros retroactivos, contratistas, reclasificación laboral, subordinación",
+      "sources": [
+        {
+          "label": "Abogado Tributario (Gabriel Zamora), the cost of being an independent worker in Costa Rica",
+          "url": "https://abogadotributario.cr/blog/el-costo-de-ser-trabajador-independiente-en-costa-rica/",
+          "type": "secondary",
+          "date": "2026-05-18"
+        },
+        {
+          "label": "Delfino, Sala IV upholds that independents may contribute more than employees",
+          "url": "https://delfino.cr/2025/02/sala-iv-avala-que-trabajadores-independientes-deban-cotizar-mas-que-los-asalariados-en-la-ccss",
+          "type": "secondary",
+          "date": "2025-02"
+        },
+        {
+          "label": "EY, reduced base mínima contributiva for part-time employees",
+          "url": "https://www.ey.com/es_ce/technical/tax/tax-alerts/costa-rica-se-aprueba-reduccion-de-la-base-minima-contributibutiva-a-la-ccss",
+          "type": "secondary",
+          "date": "2022-10-19"
+        },
+        {
+          "label": "CCSS official site",
+          "url": "https://www.ccss.sa.cr/",
+          "type": "primary"
+        }
+      ]
+    },
+    {
+      "id": "crypto-assets",
+      "title": "Tax treatment of crypto assets in Costa Rica",
+      "topic": "cripto",
+      "path": "corpus/cripto/crypto-assets.md",
+      "as_of": "2026-10-08",
+      "effective_from": "",
+      "status": "vigente (criterio no vinculante)",
+      "verified": "secondary",
+      "keywords_es": "criptomonedas, criptoactivos, activos virtuales, activo intangible, bitcoin, USDC, stablecoin, MH-DGT-OF-0460-2023, oficio DGT, ganancias de capital, impuesto sobre las utilidades, IVA comisiones exchange, remesas al exterior, BCCR moneda de curso legal, proyecto de ley 25.796, rentas del exterior, me pagan en cripto o USDC por mi trabajo, salario en cripto, qué impuesto aplica",
+      "sources": [
+        {
+          "label": "EY, DGT issues ruling on tax treatment of crypto assets (MH-DGT-OF-0460-2023)",
+          "url": "https://www.ey.com/es_ce/technical/tax/tax-alerts/costa-rica-la-dgt-emite-un-oficio-relacionado-con-el-tratamiento",
+          "type": "secondary",
+          "date": "2023-09-07"
+        },
+        {
+          "label": "Delfino, government presents bills to tax foreign income (Bill 25.796)",
+          "url": "https://www.delfino.cr/2026/09/gobierno-presenta-dos-proyectos-para-gravar-rentas-del-exterior-y-recortar-exoneraciones",
+          "type": "secondary",
+          "date": "2026-09"
+        }
+      ]
+    },
+    {
+      "id": "facturacion-electronica-v44",
+      "title": "Electronic invoicing version 4.4",
+      "topic": "facturacion",
+      "path": "corpus/facturacion/facturacion-electronica-v44.md",
+      "as_of": "2026-10-08",
+      "effective_from": "2025-09-01",
+      "status": "vigente",
+      "verified": "secondary",
+      "keywords_es": "factura electrónica, comprobantes electrónicos, versión 4.4, MH-DGT-RES-0027-2024, tiquete electrónico, nota de crédito, nota de débito, factura electrónica de compra, factura electrónica de exportación, recibo electrónico de pago, REP, mensaje receptor, aceptación, clave numérica 50 dígitos, CABYS, medios de pago SINPE Móvil, descuentos, código QR, XML firmado, obligatoria desde setiembre 2025, compra de servicios a empresa extranjera, software extranjero",
+      "sources": [
+        {
+          "label": "Deloitte, five relevant changes in comprobante 4.4",
+          "url": "https://www.deloitte.com/latam/es/services/tax/perspectives/cr-comprobante-electronico-4-4-cinco-cambios-relevantes.html",
+          "type": "secondary"
+        },
+        {
+          "label": "KPMG, technical provisions for electronic vouchers (MH-DGT-RES-0027-2024)",
+          "url": "https://kpmg.com/cr/es/home/tendencias/2024/11/newsflash-noviembre-2024-4.html",
+          "type": "secondary",
+          "date": "2024-11"
+        },
+        {
+          "label": "Sovos, Costa Rica e-invoicing rules",
+          "url": "https://sovos.com/es/iva/reglas-fiscales/factura-electronica-costa-rica/",
+          "type": "secondary"
+        },
+        {
+          "label": "Siempre al Día, QR code in v4.4 suspended",
+          "url": "https://siemprealdia.co/costa-rica/impuestos/suspension-codigo-qr-en-la-factura-electronica-4-4/",
+          "type": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "authority-and-sources",
+      "title": "Legal hierarchy, binding force and where official texts live",
+      "topic": "general",
+      "path": "corpus/general/authority-and-sources.md",
+      "as_of": "2026-10-08",
+      "effective_from": "",
+      "status": "vigente",
+      "verified": "secondary",
+      "keywords_es": "jerarquía normativa, ley, reglamento, decreto ejecutivo, resolución de alcance general, oficio, consulta tributaria, artículo 119 CNPT, Código de Normas y Procedimientos Tributarios, SCIJ, La Gaceta, conservación de documentos, cuánto tiempo guardar facturas y registros contables, prescripción, cinco años",
+      "sources": [
+        {
+          "label": "EY, DGT ruling on crypto assets (cites art. 119 CNPT on non-binding consultations)",
+          "url": "https://www.ey.com/es_ce/technical/tax/tax-alerts/costa-rica-la-dgt-emite-un-oficio-relacionado-con-el-tratamiento",
+          "type": "secondary",
+          "date": "2023-09-07"
+        },
+        {
+          "label": "Siempre al Día, withholding on non-residents (cites art. 109 CNPT, 5-year retention)",
+          "url": "https://siemprealdia.co/costa-rica/impuestos/retencion-a-no-domiciliados-en-costa-rica/",
+          "type": "secondary",
+          "date": "2026"
+        },
+        {
+          "label": "SCIJ (Sistema Costarricense de Información Jurídica), official consolidated texts",
+          "url": "https://pgrweb.go.cr/scij/",
+          "type": "primary"
+        }
+      ]
+    },
+    {
+      "id": "iva-exports",
+      "title": "IVA on exports of services and goods",
+      "topic": "iva",
+      "path": "corpus/iva/iva-exports.md",
+      "as_of": "2026-10-08",
+      "effective_from": "",
+      "status": "vigente",
+      "verified": "primary",
+      "keywords_es": "exportación de servicios, exención IVA, artículo 8 Ley 9635, servicios utilizados fuera del territorio, factura electrónica de exportación, crédito fiscal exportadores, devolución, cliente extranjero, operaciones relacionadas con exportaciones, MH-DGT-RES-0017-2023, facturar a cliente en Estados Unidos o el exterior, desarrollo de software para empresa extranjera, cobro IVA",
+      "sources": [
+        {
+          "label": "Ley 9635, arts. 4, 8 and 28 (UNED mirror)",
+          "url": "https://www.uned.ac.cr/ejecutiva/images/direccion-financiera/leyes_decretos/ley_9635.pdf",
+          "type": "primary"
+        },
+        {
+          "label": "EY, DGT resolution on export-related services exempt from IVA (MH-DGT-RES-0017-2023)",
+          "url": "https://www.ey.com/es_ce/technical/tax/tax-alerts/costa-rica-la-dgt-emite-resolucion-sobre-servicios-relacionados",
+          "type": "secondary",
+          "date": "2023-08"
+        }
+      ]
+    },
+    {
+      "id": "iva-general",
+      "title": "IVA (value added tax) basics under Ley 9635",
+      "topic": "iva",
+      "path": "corpus/iva/iva-general.md",
+      "as_of": "2026-10-08",
+      "effective_from": "2019-07-01",
+      "status": "vigente",
+      "verified": "primary",
+      "keywords_es": "impuesto al valor agregado, IVA, Ley 9635, tarifa general 13%, tarifas reducidas 4% 2% 1%, crédito fiscal, liquidación mensual, día 15, devolución, servicios prestados desde el exterior, no domiciliados, factura electrónica de compra, contribuyentes, exportadores, servicios de salud privados, educación privada, medicamentos, boletos aéreos, canasta básica",
+      "sources": [
+        {
+          "label": "Ley 9635, full text (UNED mirror of the official text)",
+          "url": "https://www.uned.ac.cr/ejecutiva/images/direccion-financiera/leyes_decretos/ley_9635.pdf",
+          "type": "primary"
+        },
+        {
+          "label": "Reglamento de la Ley del IVA (UNED mirror)",
+          "url": "https://uned.cr/ejecutiva/direccionfinanciera/images/direccion-financiera/leyes_decretos/reglamento_iva.pdf",
+          "type": "primary"
+        },
+        {
+          "label": "Deloitte, five changes in e-invoice v4.4 (purchase invoice for foreign services)",
+          "url": "https://www.deloitte.com/latam/es/services/tax/perspectives/cr-comprobante-electronico-4-4-cinco-cambios-relevantes.html",
+          "type": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "regimen-simplificado",
+      "title": "Simplified tax regime (régimen de tributación simplificada)",
+      "topic": "iva",
+      "path": "corpus/iva/regimen-simplificado.md",
+      "as_of": "2026-10-08",
+      "effective_from": "",
+      "status": "vigente",
+      "verified": "primary",
+      "keywords_es": "régimen de tributación simplificada, RTS, pequeños contribuyentes, declaración trimestral, sin crédito fiscal, factura electrónica de compra, formulario 104 105 153, D-105, acceso voluntario, artículos 35 a 43 Ley 9635, freelance, profesionales liberales, desarrollador, quién puede entrar, requisitos",
+      "sources": [
+        {
+          "label": "Ley 9635, arts. 35 to 43 (UNED mirror)",
+          "url": "https://www.uned.ac.cr/ejecutiva/images/direccion-financiera/leyes_decretos/ley_9635.pdf",
+          "type": "primary"
+        },
+        {
+          "label": "PwC, reform of the simplified regime regulation (2025)",
+          "url": "https://www.pwc.com/ia/es/publicaciones/Noticias-Tax-Legal/Tax-and-legal-2025/Se-reforma-el-reglamento-del-Regimen-de-Tributacion-Simplificada.pdf",
+          "type": "secondary",
+          "date": "2025"
+        },
+        {
+          "label": "Hacienda, consolidated TRIBU-CR declaration codes",
+          "url": "https://www.hacienda.go.cr/docs/a_1NuevaCodificacionDeDeclaracionesEnTRIBU-CR-Consolidado_PP_PJ_PF.pdf",
+          "type": "official"
+        },
+        {
+          "label": "El Observador, pastry, succulents and costume jewelry join the simplified regime",
+          "url": "https://observador.cr/reposteria-venta-de-suculentas-y-de-bisuteria-entran-al-regimen-de-tributacion-simplificada-a-partir-de-este-miercoles/",
+          "type": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "calendar",
+      "title": "Tax calendar for Fact3 clients",
+      "topic": "procedimiento",
+      "path": "corpus/procedimiento/calendar.md",
+      "as_of": "2026-10-08",
+      "effective_from": "",
+      "status": "vigente",
+      "verified": "secondary",
+      "keywords_es": "calendario tributario, fechas de vencimiento, plazos, día 15, IVA mensual, pagos parciales, junio, setiembre, diciembre, declaración anual renta 15 de marzo, trimestral régimen simplificado, retenciones, remesas, declaración 270, impuesto a las personas jurídicas",
+      "sources": [
+        {
+          "label": "Ley 9635 art. 27 (IVA by the 15th) and art. 38 (simplified, quarterly)",
+          "url": "https://www.uned.ac.cr/ejecutiva/images/direccion-financiera/leyes_decretos/ley_9635.pdf",
+          "type": "primary"
+        },
+        {
+          "label": "Alegra, tax calendar 2026",
+          "url": "https://blog.alegra.com/costa-rica/calendario-tributario-2026/",
+          "type": "secondary"
+        },
+        {
+          "label": "Siempre al Día, changes in TRIBU-CR declarations (270 and accumulated filing)",
+          "url": "https://siemprealdia.co/costa-rica/impuestos/cambios-en-declaraciones-tributarias-con-tribu-cr/",
+          "type": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "tribu-cr",
+      "title": "TRIBU-CR platform and declaration codes",
+      "topic": "procedimiento",
+      "path": "corpus/procedimiento/tribu-cr.md",
+      "as_of": "2026-10-08",
+      "effective_from": "2025-10-06",
+      "status": "vigente",
+      "verified": "official",
+      "keywords_es": "TRIBU-CR, ATV, OVi, oficina virtual, códigos de declaraciones, formulario 150, 101, 102, 104, 105, 153, 140, 270, D-104, D-101, D-151, D-270 mensual, MH-DGT-RES-0010-2026, declaraciones acumuladas, plazos, Hacienda Digital",
+      "sources": [
+        {
+          "label": "Hacienda, consolidated new codification of declarations in TRIBU-CR",
+          "url": "https://www.hacienda.go.cr/docs/a_1NuevaCodificacionDeDeclaracionesEnTRIBU-CR-Consolidado_PP_PJ_PF.pdf",
+          "type": "official"
+        },
+        {
+          "label": "Siempre al Día, changes in declarations with TRIBU-CR (cites MH-DGT-RES-0010-2026)",
+          "url": "https://siemprealdia.co/costa-rica/impuestos/cambios-en-declaraciones-tributarias-con-tribu-cr/",
+          "type": "secondary",
+          "date": "2026"
+        },
+        {
+          "label": "El Observador, TRIBU-CR starts October 6",
+          "url": "https://observador.cr/tribu-cr-arranca-el-6-de-octubre-datos-importantes-para-los-contribuyentes/",
+          "type": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "remesas-exterior",
+      "title": "Withholding on payments abroad (impuesto sobre remesas al exterior)",
+      "topic": "renta",
+      "path": "corpus/renta/remesas-exterior.md",
+      "as_of": "2026-10-08",
+      "effective_from": "",
+      "status": "vigente",
+      "verified": "secondary",
+      "keywords_es": "remesas al exterior, retención no domiciliados, artículo 59 Ley 7092, 25% honorarios, asesoramiento técnico, regalías, intereses 15%, dividendos, tarifa residual 30%, formulario 140 141 142, informativa 210 211 212, pago a proveedores extranjeros, pagar a un contratista extranjero, empresa paga a freelancer en el exterior",
+      "sources": [
+        {
+          "label": "Siempre al Día, withholding on non-residents 2026",
+          "url": "https://siemprealdia.co/costa-rica/impuestos/retencion-a-no-domiciliados-en-costa-rica/",
+          "type": "secondary",
+          "date": "2026"
+        },
+        {
+          "label": "Hacienda, consolidated TRIBU-CR declaration codes",
+          "url": "https://www.hacienda.go.cr/docs/a_1NuevaCodificacionDeDeclaracionesEnTRIBU-CR-Consolidado_PP_PJ_PF.pdf",
+          "type": "official"
+        }
+      ]
+    },
+    {
+      "id": "renta-capital",
+      "title": "Capital income and capital gains (IRCGPC)",
+      "topic": "renta",
+      "path": "corpus/renta/renta-capital.md",
+      "as_of": "2026-10-08",
+      "effective_from": "2019-07-01",
+      "status": "vigente",
+      "verified": "secondary",
+      "keywords_es": "rentas de capital, rentas de capital mobiliario, rentas de capital inmobiliario, ganancias y pérdidas de capital, IRCGPC, tarifa 15%, opción 2.25%, bienes adquiridos antes de julio 2019, vivienda habitual, habitualidad, formulario 110 111 113 116, rentas pasivas de fuente extranjera, 119 120 121 122 123 124",
+      "sources": [
+        {
+          "label": "El Observador, how capital gains are taxed",
+          "url": "https://observador.cr/ganancias-de-capital-como-tributan/",
+          "type": "secondary",
+          "date": "2021-06-17"
+        },
+        {
+          "label": "Hacienda, consolidated TRIBU-CR declaration codes",
+          "url": "https://www.hacienda.go.cr/docs/a_1NuevaCodificacionDeDeclaracionesEnTRIBU-CR-Consolidado_PP_PJ_PF.pdf",
+          "type": "official"
+        },
+        {
+          "label": "EY, DGT crypto ruling (IRCGPC vs ISU)",
+          "url": "https://www.ey.com/es_ce/technical/tax/tax-alerts/costa-rica-la-dgt-emite-un-oficio-relacionado-con-el-tratamiento",
+          "type": "secondary"
+        }
+      ]
+    },
+    {
+      "id": "renta-territoriality",
+      "title": "Income tax on profits (ISU), territoriality and 2026 brackets",
+      "topic": "renta",
+      "path": "corpus/renta/renta-territoriality.md",
+      "as_of": "2026-10-08",
+      "effective_from": "2026-01-01",
+      "status": "vigente",
+      "verified": "secondary",
+      "keywords_es": "impuesto sobre la renta, impuesto sobre las utilidades, ISU, territorialidad, fuente costarricense, Ley 7092, tramos 2026, Decreto 45333-H, persona física con actividad lucrativa, persona jurídica, pyme, asalariados, créditos por hijo y cónyuge, pagos parciales, declaración anual, 15 de marzo, periodo fiscal, sociedad anónima, SRL, empresa, formulario de renta",
+      "sources": [
+        {
+          "label": "Ley 9635 Título II, art. 1 (territoriality) (UNED mirror)",
+          "url": "https://www.uned.ac.cr/ejecutiva/images/direccion-financiera/leyes_decretos/ley_9635.pdf",
+          "type": "primary"
+        },
+        {
+          "label": "EY, 2026 income tax brackets (Decreto 45333-H, La Gaceta 229, 2025-12-05)",
+          "url": "https://www.ey.com/es_ce/technical/tax/tax-alerts/costa-rica-ministerio-de-hacienda-establecio-los-tramos-del-impuesto-sobre-la-renta-para-el-periodo-fiscal-2026",
+          "type": "secondary",
+          "date": "2025-12"
+        },
+        {
+          "label": "El Observador, last partial payment due December 31",
+          "url": "https://observador.cr/ultimo-pago-parcial-del-impuesto-sobre-la-renta-vence-el-proximo-31-de-diciembre/",
+          "type": "secondary"
+        },
+        {
+          "label": "La República, annual return due March 15",
+          "url": "https://www.larepublica.net/noticia/proximo-15-de-marzo-vence-el-plazo-para-pagar-el-impuesto-sobre-la-renta-todo-lo-que-debe-saber",
+          "type": "secondary"
+        }
+      ]
+    }
+  ]
+}

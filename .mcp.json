@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cr-tax-kb": {
+      "command": "python3",
+      "args": ["src/cr_tax_kb/mcp_server.py"]
+    }
+  }
+}
