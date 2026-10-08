@@ -30,6 +30,11 @@ def match_expression(q):
     return " OR ".join(f'"{t}"*' for t in sorted(set(terms) | stems))
 
 
+# Column weights for bm25(): title, section heading, section keywords,
+# document keywords, body text.
+W_TITLE, W_SECTION, W_SECTION_KW, W_DOC_KW, W_TEXT = 1.0, 2.0, 4.0, 0.5, 1.0
+
+
 class KnowledgeBase:
     def __init__(self, root=None):
         self.docs = {d.id: d for d in load_documents(root)}
@@ -37,16 +42,17 @@ class KnowledgeBase:
         self.db = sqlite3.connect(":memory:", check_same_thread=False)
         self.db.execute(
             """CREATE VIRTUAL TABLE fts USING fts5(chunk_id UNINDEXED, topic UNINDEXED,
-            title, section, keywords, text, tokenize='unicode61 remove_diacritics 2')"""
+            title, section, section_keywords, doc_keywords, text, tokenize='unicode61 remove_diacritics 2')"""
         )
         for doc in self.docs.values():
             for c in chunks_of(doc):
                 self.chunks[c.chunk_id] = c
-                # Spanish keywords are indexed with every chunk so Spanish
-                # queries reach sections written in English.
+                # Spanish keywords let Spanish queries reach sections written in
+                # English. Section keywords pick the section; the document's
+                # keywords only weakly help every section of that document.
                 self.db.execute(
-                    "INSERT INTO fts VALUES (?,?,?,?,?,?)",
-                    (c.chunk_id, c.topic, c.title, c.section, doc.keywords_es, c.text),
+                    "INSERT INTO fts VALUES (?,?,?,?,?,?,?)",
+                    (c.chunk_id, c.topic, c.title, c.section, c.keywords, doc.keywords_es, c.text),
                 )
 
     def topics(self):
@@ -56,8 +62,10 @@ class KnowledgeBase:
         expr = match_expression(query)
         if not expr:
             return []
-        sql = "SELECT chunk_id, bm25(fts, 0, 0, 3.0, 2.0, 1.5, 1.0) AS score FROM fts WHERE fts MATCH ?"
-        args = [expr]
+        sql = (
+            "SELECT chunk_id, bm25(fts, 0, 0, ?, ?, ?, ?, ?) AS score FROM fts WHERE fts MATCH ?"
+        )
+        args = [W_TITLE, W_SECTION, W_SECTION_KW, W_DOC_KW, W_TEXT, expr]
         if topic:
             sql += " AND topic = ?"
             args.append(topic)

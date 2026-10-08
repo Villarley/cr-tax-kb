@@ -20,10 +20,12 @@ sources:
 ---
 
 # Tax calendar for Fact3 clients
+<!-- es: fecha de vencimiento cae en fin de semana o feriado, se corre al siguiente día hábil, calendario oficial de Hacienda -->
 
 If a due date falls on a weekend or holiday it moves to the next business day. Confirm each year against Hacienda's official calendar.
 
 ## Monthly
+<!-- es: obligaciones mensuales, qué vence el día 15, IVA, retenciones, rentas de capital, declaración 270 día 25 -->
 
 | Day | Obligation | Form |
 | --- | --- | --- |
@@ -33,6 +35,7 @@ If a due date falls on a weekend or holiday it moves to the next business day. C
 | 25th (from 2027) | Summary of clients, suppliers and expenses without electronic invoice | 270 |
 
 ## Quarterly
+<!-- es: obligaciones trimestrales, régimen simplificado, pagos parciales de renta -->
 
 | When | Obligation | Form |
 | --- | --- | --- |
@@ -40,6 +43,7 @@ If a due date falls on a weekend or holiday it moves to the next business day. C
 | Last business days of June, September and December | ISU partial payments (pagos parciales) | via TRIBU-CR |
 
 ## Annual
+<!-- es: obligaciones anuales, declaración de renta 15 de marzo, impuesto a las personas jurídicas, precios de transferencia -->
 
 | When | Obligation | Form |
 | --- | --- | --- |
@@ -48,6 +52,7 @@ If a due date falls on a weekend or holiday it moves to the next business day. C
 | Yearly | Transfer pricing informative return, when applicable | 273 |
 
 ## One-off for 2026
+<!-- es: fechas especiales 2026, declaración 270 de 2025, plazo 25 de enero de 2027 -->
 
 - June 25, 2026: declaration 270 for 2025 (passed).
 - January 25, 2027: last day to file accumulated 2026 monthly declarations without sanction (MH-DGT-RES-0010-2026; confirm scope).

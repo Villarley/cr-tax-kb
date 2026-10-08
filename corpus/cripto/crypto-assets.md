@@ -21,12 +21,14 @@ sources:
 # Tax treatment of crypto assets in Costa Rica
 
 ## The DGT's position (oficio MH-DGT-OF-0460-2023)
+<!-- es: criptomonedas no son moneda de curso legal, activo intangible, activo virtual, posición de la DGT, oficio MH-DGT-OF-0460-2023, no vinculante -->
 
 Dated August 23, 2023. Because the Banco Central de Costa Rica does not recognize crypto as legal tender, the DGT treats it as **virtual assets, which are intangible assets** ("activos virtuales (activos intangibles)"). It is not money and not a foreign currency for tax purposes.
 
 The oficio is an answer to a consultation, so under art. 119 CNPT it is **informative, not binding** (see [[authority-and-sources]]).
 
 ## Income tax
+<!-- es: impuesto sobre la renta de criptomonedas, cobrar o recibir pago en cripto USDC por trabajo es ingreso ordinario, vender cripto con ganancia como inversionista paga 15%, trading como negocio, comisiones -->
 
 | Situation | Tax | Rate |
 | --- | --- | --- |
@@ -38,20 +40,24 @@ The oficio is an answer to a consultation, so under art. 119 CNPT it is **inform
 **Getting paid in crypto for work** is ordinary business income (ISU) valued in colones on the date received. The later sale or swap of that crypto is a second event that can produce a gain or loss, measured from the value at receipt.
 
 ## IVA
+<!-- es: IVA en servicios con criptomonedas, comisiones de exchanges y custodia 13% -->
 
 Services related to virtual assets, including buying and selling them, are subject to IVA, and so are the commissions on those services. The crypto itself is not a taxable "sale of goods" for the holder; the IVA lands on the service provider's fee.
 
 ## Territoriality
+<!-- es: cripto y territorialidad, exchange extranjero, ganancia en el exterior, no residentes que prestan servicios cripto, pregunta abierta -->
 
 - A Costa Rica-resident provider of crypto services earns Costa Rican-source ISU income.
 - A non-resident providing a crypto service to a Costa Rica resident, with direct effect in Costa Rica, triggers the impuesto sobre remesas al exterior (see [[remesas-exterior]]).
 - **Open question for Fact3:** whether a gain realized on a foreign exchange by a resident investor is Costa Rican-source at all. The territorial principle suggests foreign gains are out of scope, but the DGT has not addressed it directly. Get a written legal opinion before selling crypto tax filings (already flagged in the MVP plan).
 
 ## Pending legislation (not law)
+<!-- es: proyecto de ley 25.796 para gravar rentas y ganancias del exterior, todavía no es ley -->
 
 In September 2026 the government presented Bill **25.796** to tax foreign-source passive income and capital gains, plus a second bill to cut exemptions (Delfino). TRIBU-CR already has codes 119 to 124 for "rentas pasivas de fuente extranjera". Until the bill passes and its text is confirmed, treat foreign passive income and gains as untaxed under the territorial system, and keep the classification rules dated so they can switch on a given effective date.
 
 ## Practical rules for the Fact3 ledger
+<!-- es: reglas para el libro contable de cripto, valorar en colones con tipo de cambio BCCR, costo base por lote, transferencias entre billeteras propias, swap o cambio de token por otro token es enajenación -->
 
 1. Value every crypto event in colones on its date: stablecoins at their USD value, then the BCCR CRC/USD rate for that day; other assets from a price feed.
 2. Keep cost basis per lot so gains can be computed for the IRCGPC (15%) or the ISU.

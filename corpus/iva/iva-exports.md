@@ -20,6 +20,7 @@ sources:
 # IVA on exports of services and goods
 
 ## The exemption (art. 8)
+<!-- es: exención del IVA en exportaciones, artículo 8 Ley 9635, servicios usados fuera de Costa Rica, cliente extranjero, no se cobra IVA al cliente del exterior -->
 
 Article 8 of the IVA law exempts:
 
@@ -29,10 +30,12 @@ Article 8 of the IVA law exempts:
 For Fact3 this is the key rule for freelancers and companies that bill foreign clients (for example a Costa Rican developer invoicing a US company or a foundation such as SDF): if the service is **used outside Costa Rica**, it is exempt from IVA, but it is still a taxable operation for reporting.
 
 ## What "used abroad" means in practice
+<!-- es: cuándo se considera que un servicio se usa en el exterior, pruebas y evidencia, contrato, dirección e identificación fiscal del cliente extranjero, pagos del exterior, casos dudosos -->
 
 The test is where the service is used or consumed, not where the provider sits or where payment comes from. A software service delivered to a foreign company for its business abroad is generally exported. A service to a foreign company that is consumed in Costa Rica (for example, work on a Costa Rican branch's local operations) may not be. Get the accountant's sign-off on edge cases and keep evidence: the contract, the client's foreign address and tax ID, and proof of foreign payment.
 
 ## Obligations even when exempt
+<!-- es: obligaciones del exportador aunque esté exento, inscribirse, factura electrónica de exportación, declarar IVA mensual en cero formulario 150, crédito y devolución -->
 
 - Exporters are IVA taxpayers by law (art. 4) and must be registered.
 - Each export is documented with a **factura electrónica de exportación** (v4.4 comprobante type), not a regular invoice. See [[facturacion-electronica-v44]].
@@ -40,9 +43,11 @@ The test is where the service is used or consumed, not where the provider sits o
 - IVA paid on inputs used for exports keeps its right to credit, and if credits pile up the exporter can request a refund; taxpayers with credit-eligible operations above 75% can use the expedited refund in art. 28.
 
 ## Related operations (MH-DGT-RES-0017-2023)
+<!-- es: servicios relacionados con exportaciones de bienes exentos, transporte, puertos, aeropuertos, contenedores, escaneo, DUA, MH-DGT-RES-0017-2023 -->
 
 The DGT resolution MH-DGT-RES-0017-2023 (La Gaceta, August 4, 2023), issued under art. 11 of the IVA Regulation, lists export-related services that are also exempt: vessel services, handling of empty containers under temporary import, port and airport services, transport of export goods to ports, airports or land borders and to final destination (backed by the DUA), and scanning of export goods. It repealed DGT-R-035-2019, DGT-R-038-2019, DGT-R-36-2021 and MH-DGT-RES-001-2023. This matters mostly to goods exporters, not to Fact3's service clients.
 
 ## Income tax is separate
+<!-- es: la exportación exenta de IVA sí paga impuesto sobre la renta, ingreso de fuente costarricense -->
 
 An exempt export for IVA is still **Costa Rican-source income** for income tax when the work is performed in Costa Rica. See [[renta-territoriality]].

@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from cr_tax_kb.cli import llms_txt  # noqa: E402
-from cr_tax_kb.corpus import load_documents  # noqa: E402
+from cr_tax_kb.corpus import chunks_of, load_documents  # noqa: E402
 from cr_tax_kb.search import KnowledgeBase  # noqa: E402
 
 TOPICS = {"general", "iva", "renta", "cripto", "facturacion", "procedimiento", "ccss"}
@@ -34,6 +34,13 @@ class CorpusTest(unittest.TestCase):
                     self.assertTrue(s.get("url", "").startswith("https://"), s)
                     self.assertIn(s.get("type"), STRENGTHS | {"primary"}, s)
 
+    def test_every_section_has_spanish_keywords(self):
+        for d in self.docs:
+            for c in chunks_of(d):
+                with self.subTest(chunk=c.chunk_id):
+                    self.assertTrue(c.keywords, "add <!-- es: ... --> under the heading")
+                    self.assertNotIn("<!--", c.text)
+
     def test_links_resolve(self):
         ids = {d.id for d in self.docs}
         for d in self.docs:
@@ -57,6 +64,12 @@ class RetrievalTest(unittest.TestCase):
         kb = KnowledgeBase()
         qs = json.loads((ROOT / "eval" / "questions.json").read_text(encoding="utf-8"))
         misses = [q["q"] for q in qs if q["expect"] not in [h["doc_id"] for h in kb.search(q["q"], 3)]]
+        self.assertLessEqual(len(misses), len(qs) // 10, misses)
+
+    def test_section_eval(self):
+        kb = KnowledgeBase()
+        qs = json.loads((ROOT / "eval" / "sections.json").read_text(encoding="utf-8"))
+        misses = [q["q"] for q in qs if q["expect"] not in [h["chunk_id"] for h in kb.search(q["q"], 3)]]
         self.assertLessEqual(len(misses), len(qs) // 10, misses)
 
     def test_topic_filter(self):

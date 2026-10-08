@@ -51,7 +51,7 @@ PYTHONPATH=src python3 -m cr_tax_kb.cli list
 
 ## How search works
 
-BM25 over an in-memory SQLite FTS5 index, built at start from `corpus/`. Accents are folded and Spanish words are crudely stemmed. Body text is English with Spanish legal terms; each document's `keywords_es` is indexed with every section so Spanish questions find it. Embedding search (to rank sections better across languages) is the next step; `data/chunks.jsonl` is ready to embed.
+BM25 over an in-memory SQLite FTS5 index, built at start from `corpus/`. Accents are folded and Spanish words are crudely stemmed. Body text is English with Spanish legal terms. Each section carries its own Spanish search terms in a hidden `<!-- es: ... -->` line (weighted highest), and each document's `keywords_es` adds a weaker document-level signal. Embedding search (to rank sections better across languages) is the next step; `data/chunks.jsonl` is ready to embed.
 
 ## Quality checks
 
@@ -59,7 +59,7 @@ BM25 over an in-memory SQLite FTS5 index, built at start from `corpus/`. Accents
 python3 -m unittest discover -s tests
 ```
 
-Checks frontmatter, source URLs, no em dashes, that `data/` matches the corpus, the MCP handshake, and the retrieval eval in [eval/questions.json](eval/questions.json). CI runs the same on every push.
+Checks frontmatter, source URLs, no em dashes, that `data/` matches the corpus, the MCP handshake, and the retrieval evals: [eval/questions.json](eval/questions.json) (right document) and [eval/sections.json](eval/sections.json) (right section). CI runs the same on every push.
 
 ## Used by
 
