@@ -21,6 +21,7 @@ This repo is a knowledge base of Costa Rican tax and accounting rules. Use it to
 
 - One topic per file under `corpus/<topic>/<id>.md`. Keep the frontmatter fields used by the other files (see CONTRIBUTING.md).
 - Write sections that stand alone: a retrieved section should make sense without the rest of the file.
+- Right under each `## ` heading, add one line `<!-- es: ... -->` with Spanish terms and phrasings people would use to ask about that section. It is hidden when rendered and is what lets Spanish questions find the right section.
 - Body in English, Spanish legal terms and short quotes from the law kept verbatim. Put Spanish search terms and typical questions in `keywords_es`.
 - `[[id]]` links point to other documents by id.
 - No em dashes.

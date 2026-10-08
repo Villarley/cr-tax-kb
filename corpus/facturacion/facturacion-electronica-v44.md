@@ -27,11 +27,13 @@ sources:
 # Electronic invoicing version 4.4
 
 ## Legal basis and dates
+<!-- es: desde cuándo es obligatoria la factura electrónica 4.4, 1 de setiembre de 2025, resolución MH-DGT-RES-0027-2024 -->
 
 - Resolution **MH-DGT-RES-0027-2024** ("Disposiciones técnicas de los comprobantes electrónicos para efectos tributarios"), published November 2024 with its "Anexos y Estructuras" document.
 - Mandatory from **September 1, 2025**. The original June 1, 2025 date was extended by the DGT (announcement of February 11, 2025).
 
 ## Document types (comprobantes)
+<!-- es: tipos de comprobantes electrónicos, factura, tiquete, nota de crédito, nota de débito, factura de compra, factura de exportación, recibo de pago, mensaje receptor, clave de 50 dígitos -->
 
 - Factura electrónica (sale to an identified buyer)
 - Tiquete electrónico (sale to a final consumer without a tax ID)
@@ -44,6 +46,7 @@ sources:
 Each document is a signed XML with a **50-digit numeric key** (clave), sent to Hacienda when issued; Hacienda answers with an acceptance or rejection message. Records are kept 5 years.
 
 ## The five main changes in 4.4 (Deloitte)
+<!-- es: cambios de la versión 4.4, medios de pago SINPE Móvil, combos, códigos de descuento, factura de compra a proveedores extranjeros, recibo electrónico de pago -->
 
 1. **Payment methods:** new fields and codes to report digital payments such as SINPE Móvil and other platforms, so Hacienda can trace them.
 2. **Combos and packages:** the seller must break down items bundled into a package.
@@ -52,12 +55,14 @@ Each document is a signed XML with a **50-digit numeric key** (clave), sent to H
 5. **Recibo electrónico de pago (REP):** for credit sales by independent professionals and small and medium businesses (not large taxpayers). It lets them pay the IVA when the customer pays rather than when invoicing (credit sales up to 90 days).
 
 ## Other points to confirm in the annexes
+<!-- es: código CABYS catálogo de bienes y servicios, código QR suspendido, plazo del mensaje receptor -->
 
 - **CABYS** codes (Catálogo de Bienes y Servicios) are required per line item and determine the IVA rate; Fact3 should map client services to CABYS codes.
 - The **QR code** foreseen in 4.4 was reported as suspended (Siempre al Día). Check current status before generating one.
 - The deadline for the buyer's mensaje receptor and its effect on the IVA credit: confirm in the resolution text (the automation spec already flags this for the accountant).
 
 ## Relevance to Fact3
+<!-- es: facturas que emite Fact3, exportación a clientes extranjeros, compra de software o servicios a empresas extranjeras, proveedor de facturación -->
 
 - Freelancers paid by foreign clients issue **export invoices**; GrantFox-style companies receive **regular invoices** from local contractors and issue export invoices to foreign funders.
 - Buying foreign SaaS or services: issue a factura electrónica de compra (reverse charge IVA) so the cost is deductible and the IVA is accounted for.

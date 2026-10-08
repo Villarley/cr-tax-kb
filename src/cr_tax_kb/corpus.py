@@ -1,6 +1,7 @@
 """Load the Markdown corpus and split it into citable chunks."""
 
 import os
+import re
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
@@ -39,6 +40,7 @@ class Chunk:
     section: str
     topic: str
     text: str
+    keywords: str = ""
 
 
 def parse_frontmatter(text):
@@ -65,18 +67,31 @@ def parse_frontmatter(text):
     return meta, body
 
 
+SECTION_KEYWORDS = re.compile(r"^<!--\s*es:\s*(.*?)\s*-->$")
+
+
 def split_sections(body):
-    """Split at '## ' headings; text before the first heading is 'Overview'."""
-    out, heading, buf = [], "Overview", []
+    """Split at '## ' headings; text before the first heading is 'Overview'.
+
+    A line `<!-- es: ... -->` right under a heading holds Spanish search terms
+    for that section only. It is hidden when rendered and removed from the
+    chunk text. Returns (heading, text, keywords) tuples."""
+    out, heading, buf, kw = [], "Overview", [], ""
+
+    def flush():
+        if "".join(buf).strip():
+            out.append((heading, "\n".join(buf).strip(), kw))
+
     for line in body.splitlines():
+        m = SECTION_KEYWORDS.match(line.strip())
         if line.startswith("## "):
-            if "".join(buf).strip():
-                out.append((heading, "\n".join(buf).strip()))
-            heading, buf = line[3:].strip(), []
+            flush()
+            heading, buf, kw = line[3:].strip(), [], ""
+        elif m:
+            kw = m.group(1)
         elif not line.startswith("# "):
             buf.append(line)
-    if "".join(buf).strip():
-        out.append((heading, "\n".join(buf).strip()))
+    flush()
     return out
 
 
@@ -105,6 +120,6 @@ def load_documents(root=None):
 
 def chunks_of(doc):
     return [
-        Chunk(f"{doc.id}#{i}", doc.id, doc.title, heading, doc.topic, text)
-        for i, (heading, text) in enumerate(split_sections(doc.body))
+        Chunk(f"{doc.id}#{i}", doc.id, doc.title, heading, doc.topic, text, kw)
+        for i, (heading, text, kw) in enumerate(split_sections(doc.body))
     ]

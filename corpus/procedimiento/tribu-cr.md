@@ -24,12 +24,14 @@ sources:
 # TRIBU-CR platform and declaration codes
 
 ## What it is
+<!-- es: qué es TRIBU-CR, reemplazó ATV, Oficina Virtual OVi, 6 de octubre de 2025, sin API para declarar -->
 
 TRIBU-CR is Hacienda's integrated tax platform. It went live on **October 6, 2025**, replacing ATV, TRAVI and DeclaraWeb; returns are filed only there, through the Oficina Virtual (OVi). There is no public filing API: in the Fact3 MVP the accountant files drafts by hand.
 
 Declarations moved from "D-xxx" codes to three-digit codes. Old D-numbers can be ambiguous (for example the old informative D-151 is now 270, while the new 151 is an agricultural IVA return), so always use the new code.
 
 ## Codes Fact3 clients will use
+<!-- es: códigos de formularios en TRIBU-CR, equivalencias con los antiguos D-104 D-101 D-151 D-105, 150 101 102 270 -->
 
 | New | Old | Name | Frequency |
 | --- | --- | --- | --- |
@@ -54,6 +56,7 @@ Declarations moved from "D-xxx" codes to three-digit codes. Old D-numbers can be
 Other IVA codes: 151 and 152 (agricultural regime, four-monthly and annual), 154 (card withholding of IVA), 156 and 158 (IVA collected by registered cross-border digital intermediaries and providers).
 
 ## Deadline adjustments (MH-DGT-RES-0010-2026)
+<!-- es: prórrogas y plazos de TRIBU-CR, declaraciones atrasadas o acumuladas de 2026 hasta el 25 de enero de 2027, declaración 270 mensual desde 2027, MH-DGT-RES-0010-2026 -->
 
 Published March 20, 2026 (Alcance 30, La Gaceta 55):
 
@@ -62,5 +65,6 @@ Published March 20, 2026 (Alcance 30, La Gaceta 55):
 - From 2027, declaration 270 becomes **monthly**, due in the first 25 days of the following month.
 
 ## Known issues
+<!-- es: problemas de TRIBU-CR, fallas de migración, comprobante de presentación -->
 
 TRIBU-CR had migration problems in its first months. Budget accountant time for manual fixes and keep the filing receipt for every return.

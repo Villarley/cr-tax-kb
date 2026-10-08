@@ -24,6 +24,7 @@ sources:
 # Capital income and capital gains (IRCGPC)
 
 ## Two separate income tax schedules
+<!-- es: diferencia entre rentas de capital y utilidades, impuesto sobre rentas de capital y ganancias y pérdidas de capital IRCGPC, inversiones pasivas, alquileres, intereses, dividendos -->
 
 Since Ley 9635 (in force July 1, 2019) Costa Rica has a dual system:
 
@@ -33,12 +34,14 @@ Since Ley 9635 (in force July 1, 2019) Costa Rica has a dual system:
 If the asset is tied to the taxpayer's lucrative activity, the income goes into the ISU instead, at ordinary rates.
 
 ## Rates
+<!-- es: tarifa de ganancias de capital 15%, opción 2,25% sobre el valor de venta para bienes adquiridos antes de julio 2019, venta de inmueble, vivienda habitual exenta -->
 
 - Capital income and capital gains: **15%** general rate. For capital gains it applies to the difference between the transfer value and the acquisition value (El Observador).
 - **2.25% option:** for assets acquired **before July 1, 2019**, the seller may instead pay 2.25% on the total transfer value. It is optional.
 - Exempt example: the sale of the taxpayer's **vivienda habitual** (habitual residence). Other exemptions and the reduced rates for specific instruments are in Ley 7092 chapter XI; add them from the primary text (pending).
 
 ## Forms in TRIBU-CR (monthly, when the event occurs)
+<!-- es: formularios de rentas de capital y ganancias de capital en TRIBU-CR, 110 111 113 116, rentas pasivas de fuente extranjera 119 a 124, mensual -->
 
 | Code | Concept |
 | --- | --- |
@@ -50,5 +53,6 @@ If the asset is tied to the taxpayer's lucrative activity, the income goes into 
 The codes 119 to 124 exist in the official TRIBU-CR codification. Their legal basis must be confirmed: as of September 2026, Bill 25.796 to tax foreign passive income and gains was presented but not yet law (see [[crypto-assets]]). Do not tell clients foreign gains are taxable until this is confirmed.
 
 ## Crypto under IRCGPC
+<!-- es: cripto como inversión paga ganancias de capital 15% -->
 
 Per the DGT (MH-DGT-OF-0460-2023), gains from buying and selling a crypto asset held as personal wealth fall under the IRCGPC (15%), and returns from crypto investments too. When the crypto is part of a business, the ISU applies. See [[crypto-assets]].
