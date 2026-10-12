@@ -131,15 +131,23 @@ JUDGE_PROMPT = textwrap.dedent(
     Devuelve un único objeto JSON (sin markdown): {"verdict":"correct|partial|incorrect","reason":"..."}
 
     Pregunta:
-    {question}
+    <<QUESTION>>
 
     Respuesta de referencia (paráfrasis esperada):
-    {reference}
+    <<REFERENCE>>
 
     Respuesta del candidato:
-    {candidate}
+    <<CANDIDATE>>
     """
 ).strip()
+
+
+def _fill_judge_prompt(question: str, reference: str, candidate: str) -> str:
+    return (
+        JUDGE_PROMPT.replace("<<QUESTION>>", question)
+        .replace("<<REFERENCE>>", reference)
+        .replace("<<CANDIDATE>>", candidate)
+    )
 
 
 def _norm_id(s: str) -> str:
@@ -225,10 +233,19 @@ def prompt_token_estimate(condition: str, question: dict) -> float:
     return approx_tokens(user_prompt) + approx_tokens(sys_map[condition])
 
 
+def _model_id_from_usage(mu: dict) -> str | None:
+    if not isinstance(mu, dict) or not mu:
+        return None
+    ids = sorted(mu.keys())
+    if len(ids) == 1:
+        return ids[0]
+    return ",".join(ids)
+
+
 def parse_stream(lines: list[str]) -> dict:
     tool_calls = 0
     result_event = None
-    models_seen: set[str] = set()
+    message_model: str | None = None
     for line in lines:
         line = line.strip()
         if not line:
@@ -237,17 +254,28 @@ def parse_stream(lines: list[str]) -> dict:
             ev = json.loads(line)
         except json.JSONDecodeError:
             continue
-        if ev.get("type") == "assistant":
+        ev_type = ev.get("type")
+        if message_model is None and ev_type in ("system", "init"):
+            m = ev.get("model")
+            if isinstance(m, str) and m:
+                message_model = m
+        if ev_type == "assistant":
             msg = ev.get("message") or {}
+            if message_model is None:
+                m = msg.get("model") or ev.get("model")
+                if isinstance(m, str) and m:
+                    message_model = m
             for block in msg.get("content") or []:
                 if isinstance(block, dict) and block.get("type") == "tool_use":
                     tool_calls += 1
-        if ev.get("type") == "result":
+        if ev_type == "result":
             result_event = ev
-        mu = ev.get("modelUsage") or {}
-        if isinstance(mu, dict):
-            models_seen.update(mu.keys())
-    out = {"tool_calls": tool_calls, "models": sorted(models_seen)}
+    model_id: str | None = None
+    if result_event:
+        model_id = _model_id_from_usage(result_event.get("modelUsage") or {})
+    if not model_id and message_model:
+        model_id = message_model
+    out = {"tool_calls": tool_calls, "model_id": model_id}
     if result_event:
         out.update(
             {
@@ -358,7 +386,7 @@ def _judge(
     reference: str,
     candidate: str,
 ) -> dict:
-    prompt = JUDGE_PROMPT.format(question=question, reference=reference, candidate=candidate)
+    prompt = _fill_judge_prompt(question, reference, candidate)
     argv = [
         claude_bin,
         "-p",
@@ -378,11 +406,17 @@ def _judge(
     reason = None
     usage = {}
     cost = None
+    model_id = None
     try:
         outer = json.loads(raw)
         if isinstance(outer, dict):
             usage = outer.get("usage") or {}
             cost = outer.get("total_cost_usd")
+            model_id = _model_id_from_usage(outer.get("modelUsage") or {})
+            if not model_id:
+                m = outer.get("model")
+                if isinstance(m, str) and m:
+                    model_id = m
             inner = outer.get("result") or outer.get("response") or ""
             if isinstance(inner, str):
                 parsed = json.loads(inner)
@@ -398,6 +432,7 @@ def _judge(
         "reason": reason,
         "usage": usage,
         "total_cost_usd": cost,
+        "model_id": model_id,
         "wall_seconds": wall,
         "returncode": rc,
         "raw": raw[:2000],
@@ -407,11 +442,17 @@ def _judge(
 def _summarize(records: list[dict], condition: str) -> dict:
     subset = [r for r in records if r.get("condition") == condition and r.get("status") == "ok"]
     skipped = sum(1 for r in records if r.get("condition") == condition and r.get("status") == "skipped_context")
+    errors = sum(1 for r in records if r.get("condition") == condition and r.get("status") == "error")
     if not subset:
-        return {"n": 0, "skipped_context": skipped}
+        return {"n": 0, "skipped_context": skipped, "errors": errors}
 
-    def rate(key: str) -> float:
-        vals = [r.get("grades", {}).get(key) for r in subset]
+    covered_subset = [r for r in subset if r.get("question", {}).get("covered")]
+    not_covered_subset = [r for r in subset if not r.get("question", {}).get("covered")]
+    n_covered = len(covered_subset)
+    n_not_covered = len(not_covered_subset)
+
+    def rate_on(recs: list[dict], key: str) -> float:
+        vals = [r.get("grades", {}).get(key) for r in recs]
         vals = [v for v in vals if v is not None]
         return sum(1 for v in vals if v) / len(vals) if vals else 0.0
 
@@ -425,9 +466,9 @@ def _summarize(records: list[dict], condition: str) -> dict:
         else:
             judge_counts["missing"] += 1
 
-    covered_ok = [r for r in subset if r.get("question", {}).get("covered")]
     jc_total = sum(judge_counts[k] for k in ("correct", "partial", "incorrect"))
-    inputs, outputs, costs, walls, tools = [], [], [], [], []
+    inputs, outputs, costs, walls, tools, judge_costs = [], [], [], [], [], []
+    total_cost_usd = 0.0
     for r in subset:
         u = r.get("usage") or {}
         inp = (u.get("input_tokens") or 0) + (u.get("cache_creation_input_tokens") or 0) + (
@@ -436,9 +477,16 @@ def _summarize(records: list[dict], condition: str) -> dict:
         inputs.append(inp)
         outputs.append(u.get("output_tokens") or 0)
         if r.get("total_cost_usd") is not None:
-            costs.append(float(r["total_cost_usd"]))
+            ac = float(r["total_cost_usd"])
+            costs.append(ac)
+            total_cost_usd += ac
         walls.append(r.get("wall_seconds") or 0.0)
         tools.append(r.get("tool_calls") or 0)
+        j = r.get("judge") or {}
+        if j.get("total_cost_usd") is not None:
+            jc = float(j["total_cost_usd"])
+            judge_costs.append(jc)
+            total_cost_usd += jc
 
     def mean(xs):
         return sum(xs) / len(xs) if xs else 0.0
@@ -452,11 +500,14 @@ def _summarize(records: list[dict], condition: str) -> dict:
 
     return {
         "n": len(subset),
+        "n_covered": n_covered,
+        "n_not_covered": n_not_covered,
         "skipped_context": skipped,
-        "right_unit_rate": rate("right_unit"),
-        "quote_verbatim_rate": rate("quote_verbatim"),
-        "refusal_correct_rate": rate("refusal_correct"),
-        "false_refusal_rate": rate("false_refusal"),
+        "errors": errors,
+        "right_unit_rate": rate_on(covered_subset, "right_unit"),
+        "quote_verbatim_rate": rate_on(covered_subset, "quote_verbatim"),
+        "false_refusal_rate": rate_on(covered_subset, "false_refusal"),
+        "refusal_correct_rate": rate_on(not_covered_subset, "refusal_correct"),
         "judge_correct_rate": judge_counts["correct"] / jc_total if jc_total else 0.0,
         "judge_partial_rate": judge_counts["partial"] / jc_total if jc_total else 0.0,
         "judge_incorrect_rate": judge_counts["incorrect"] / jc_total if jc_total else 0.0,
@@ -464,6 +515,8 @@ def _summarize(records: list[dict], condition: str) -> dict:
         "median_input_tokens": median(inputs),
         "mean_output_tokens": mean(outputs),
         "mean_cost_usd": mean(costs),
+        "mean_judge_cost": mean(judge_costs),
+        "total_cost_usd": total_cost_usd,
         "mean_wall_seconds": mean(walls),
         "mean_tool_calls": mean(tools),
     }
@@ -471,18 +524,23 @@ def _summarize(records: list[dict], condition: str) -> dict:
 
 def _print_summary(summaries: dict[str, dict]) -> None:
     print("# Agent benchmark summary")
-    print("| condition | n | right_unit | quote_ok | judge OK | judge partial | judge bad | refusal OK | false refusal | mean cost | mean wall s |")
-    print("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
+    print(
+        "| condition | n | cov/not | right_unit | quote_ok | judge OK | judge partial | "
+        "judge bad | refusal OK | false refusal | total cost | mean in tok | mean tools | mean wall s |"
+    )
+    print("| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |")
     for cond in sorted(summaries):
         s = summaries[cond]
         if s.get("n", 0) == 0:
-            print(f"| {cond} | 0 | | | | | | | | | skipped={s.get('skipped_context', 0)} |")
+            print(f"| {cond} | 0 | | | | | | | | | | | | skipped={s.get('skipped_context', 0)} |")
             continue
+        cov = f"{s.get('n_covered', 0)}/{s.get('n_not_covered', 0)}"
         print(
-            f"| {cond} | {s['n']} | {100*s['right_unit_rate']:.0f}% | {100*s['quote_verbatim_rate']:.0f}% | "
+            f"| {cond} | {s['n']} | {cov} | {100*s['right_unit_rate']:.0f}% | {100*s['quote_verbatim_rate']:.0f}% | "
             f"{100*s['judge_correct_rate']:.0f}% | {100*s['judge_partial_rate']:.0f}% | "
             f"{100*s['judge_incorrect_rate']:.0f}% | {100*s['refusal_correct_rate']:.0f}% | "
-            f"{100*s['false_refusal_rate']:.0f}% | ${s['mean_cost_usd']:.4f} | {s['mean_wall_seconds']:.1f} |"
+            f"{100*s['false_refusal_rate']:.0f}% | ${s['total_cost_usd']:.4f} | "
+            f"{s['mean_input_tokens']:.0f} | {s['mean_tool_calls']:.1f} | {s['mean_wall_seconds']:.1f} |"
         )
 
 
@@ -550,48 +608,54 @@ def run_one(
         "question": question,
         "model": model,
     }
-    if condition == "C":
-        est = prompt_token_estimate("C", question)
-        if est > CONTEXT_TOKEN_LIMIT:
-            rec["status"] = "skipped_context"
-            rec["approx_prompt_tokens"] = est
+    try:
+        if condition == "C":
+            est = prompt_token_estimate("C", question)
+            if est > CONTEXT_TOKEN_LIMIT:
+                rec["status"] = "skipped_context"
+                rec["approx_prompt_tokens"] = est
+                return rec
+
+        argv, _ = build_command(condition, question, model, claude_bin=claude_bin)
+        try:
+            lines, wall, rc = _run_claude(argv, REPO_ROOT, CALL_TIMEOUT_S)
+        except subprocess.TimeoutExpired:
+            rec["status"] = "timeout"
             return rec
 
-    argv, _ = build_command(condition, question, model, claude_bin=claude_bin)
-    try:
-        lines, wall, rc = _run_claude(argv, REPO_ROOT, CALL_TIMEOUT_S)
-    except subprocess.TimeoutExpired:
-        rec["status"] = "timeout"
-        return rec
-
-    parsed = parse_stream(lines)
-    rec.update(
-        {
-            "status": "ok" if rc == 0 and not parsed.get("is_error") else "error",
-            "returncode": rc,
-            "wall_seconds": wall,
-            "tool_calls": parsed.get("tool_calls", 0),
-            "usage": parsed.get("usage") or {},
-            "total_cost_usd": parsed.get("total_cost_usd"),
-            "duration_ms": parsed.get("duration_ms"),
-            "num_turns": parsed.get("num_turns"),
-            "answer": parsed.get("result_text") or "",
-        }
-    )
-    footer = parse_answer_footer(rec["answer"])
-    rec["parsed_footer"] = footer
-    grades = grade({"parsed_footer": footer}, question, units)
-    rec["grades"] = grades
-
-    if question.get("covered"):
-        rec["judge"] = _judge(
-            claude_bin,
-            judge_model,
-            question["question"],
-            question.get("answer") or "",
-            rec["answer"],
+        parsed = parse_stream(lines)
+        rec.update(
+            {
+                "status": "ok" if rc == 0 and not parsed.get("is_error") else "error",
+                "returncode": rc,
+                "wall_seconds": wall,
+                "tool_calls": parsed.get("tool_calls", 0),
+                "usage": parsed.get("usage") or {},
+                "total_cost_usd": parsed.get("total_cost_usd"),
+                "model_id": parsed.get("model_id"),
+                "duration_ms": parsed.get("duration_ms"),
+                "num_turns": parsed.get("num_turns"),
+                "answer": parsed.get("result_text") or "",
+            }
         )
-    return rec
+        footer = parse_answer_footer(rec["answer"])
+        rec["parsed_footer"] = footer
+        grades = grade({"parsed_footer": footer}, question, units)
+        rec["grades"] = grades
+
+        if question.get("covered"):
+            rec["judge"] = _judge(
+                claude_bin,
+                judge_model,
+                question["question"],
+                question.get("answer") or "",
+                rec["answer"],
+            )
+        return rec
+    except Exception as e:
+        rec["status"] = "error"
+        rec["error"] = f"{type(e).__name__}: {e}"
+        return rec
 
 
 def main() -> int:
@@ -626,15 +690,9 @@ def main() -> int:
     kb = KnowledgeBase()
     units = kb.units
 
-    records: list[dict] = []
-    tasks = [(c, q) for c in conditions for q in questions]
-    with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
-        futs = {
-            pool.submit(run_one, c, q, args.model, judge_model, args.claude_bin, units): (c, q)
-            for c, q in tasks
-        }
-        for fut in as_completed(futs):
-            records.append(fut.result())
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    out_path = args.out or (REPO_ROOT / "benchmark" / "results" / f"agent-{today}.json")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     claude_ver = ""
     try:
@@ -648,25 +706,65 @@ def main() -> int:
     except OSError:
         claude_ver = "unavailable"
 
-    summaries = {c: _summarize(records, c) for c in conditions}
-    out_doc = {
-        "metadata": {
-            "date_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
-            "git_commit": git_commit(),
-            "claude_version": claude_ver,
-            "model": args.model,
-            "judge_model": judge_model,
-            "conditions": conditions,
-            "prompts": {"SYS_A": SYS_A, "SYS_B": SYS_B, "SYS_C": SYS_C, "JUDGE_PROMPT": JUDGE_PROMPT},
-        },
-        "records": records,
-        "summary": summaries,
-    }
+    records: list[dict] = []
 
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    out_path = args.out or (REPO_ROOT / "benchmark" / "results" / f"agent-{today}.json")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(out_doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    def _models_reported(recs: list[dict]) -> tuple[list[str], list[str]]:
+        answer: set[str] = set()
+        judge: set[str] = set()
+        for r in recs:
+            mid = r.get("model_id")
+            if isinstance(mid, str) and mid:
+                for part in mid.split(","):
+                    p = part.strip()
+                    if p:
+                        answer.add(p)
+            jmid = (r.get("judge") or {}).get("model_id")
+            if isinstance(jmid, str) and jmid:
+                for part in jmid.split(","):
+                    p = part.strip()
+                    if p:
+                        judge.add(p)
+        return sorted(answer), sorted(judge)
+
+    def write_results() -> None:
+        summaries = {c: _summarize(records, c) for c in conditions}
+        models_reported, judge_models_reported = _models_reported(records)
+        out_doc = {
+            "metadata": {
+                "date_utc": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+                "git_commit": git_commit(),
+                "claude_version": claude_ver,
+                "model": args.model,
+                "judge_model": judge_model,
+                "models_reported": models_reported,
+                "judge_models_reported": judge_models_reported,
+                "conditions": conditions,
+                "prompts": {
+                    "SYS_A": SYS_A,
+                    "SYS_B": SYS_B,
+                    "SYS_C": SYS_C,
+                    "JUDGE_PROMPT": JUDGE_PROMPT,
+                },
+            },
+            "records": records,
+            "summary": summaries,
+        }
+        out_path.write_text(
+            json.dumps(out_doc, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+
+    tasks = [(c, q) for c in conditions for q in questions]
+    with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
+        futs = {
+            pool.submit(run_one, c, q, args.model, judge_model, args.claude_bin, units): (c, q)
+            for c, q in tasks
+        }
+        for fut in as_completed(futs):
+            records.append(fut.result())
+            write_results()
+
+    summaries = {c: _summarize(records, c) for c in conditions}
     _print_summary(summaries)
     print(f"\nWrote {out_path}")
     return 0

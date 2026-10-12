@@ -83,6 +83,76 @@ class AgentHarnessTest(unittest.TestCase):
         self.assertEqual(parsed["tool_calls"], 1)
         self.assertEqual(parsed["result_text"], "Respuesta de prueba")
         self.assertEqual(parsed["usage"]["input_tokens"], 10)
+        self.assertEqual(parsed["model_id"], "sonnet")
+
+    def test_parse_stream_message_model_fallback(self):
+        stream = [
+            json.dumps(
+                {
+                    "type": "assistant",
+                    "message": {"model": "claude-sonnet-4-20250514", "content": []},
+                }
+            ),
+            json.dumps({"type": "result", "result": "ok", "usage": {}, "is_error": False}),
+        ]
+        parsed = agent.parse_stream(stream)
+        self.assertEqual(parsed["model_id"], "claude-sonnet-4-20250514")
+
+    def test_summarize_rate_denominators(self):
+        records = [
+            {
+                "condition": "A",
+                "status": "ok",
+                "question": {"covered": True},
+                "grades": {
+                    "right_unit": True,
+                    "quote_verbatim": False,
+                    "false_refusal": False,
+                    "refusal_correct": False,
+                },
+                "usage": {"input_tokens": 100},
+                "total_cost_usd": 0.01,
+                "tool_calls": 2,
+                "judge": {"verdict": "correct", "total_cost_usd": 0.005},
+            },
+            {
+                "condition": "A",
+                "status": "ok",
+                "question": {"covered": True},
+                "grades": {
+                    "right_unit": False,
+                    "quote_verbatim": True,
+                    "false_refusal": True,
+                    "refusal_correct": False,
+                },
+                "usage": {"input_tokens": 200},
+                "total_cost_usd": 0.02,
+                "tool_calls": 0,
+            },
+            {
+                "condition": "A",
+                "status": "ok",
+                "question": {"covered": False},
+                "grades": {
+                    "right_unit": True,
+                    "quote_verbatim": True,
+                    "false_refusal": True,
+                    "refusal_correct": True,
+                },
+                "usage": {"input_tokens": 50},
+                "total_cost_usd": 0.001,
+                "tool_calls": 0,
+            },
+        ]
+        s = agent._summarize(records, "A")
+        self.assertEqual(s["n_covered"], 2)
+        self.assertEqual(s["n_not_covered"], 1)
+        self.assertAlmostEqual(s["right_unit_rate"], 0.5)
+        self.assertAlmostEqual(s["quote_verbatim_rate"], 0.5)
+        self.assertAlmostEqual(s["false_refusal_rate"], 0.5)
+        self.assertAlmostEqual(s["refusal_correct_rate"], 1.0)
+        self.assertAlmostEqual(s["total_cost_usd"], 0.01 + 0.005 + 0.02 + 0.001)
+        self.assertAlmostEqual(s["mean_judge_cost"], 0.005)
 
     def test_grade_quotes(self):
         art_path = ROOT / "laws" / "ley-2" / "articles.jsonl"
