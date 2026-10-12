@@ -18,6 +18,10 @@ As of 2026-10-08. "Read" means the content was fetched and summarized for this c
 - El Observador: [capital gains](https://observador.cr/ganancias-de-capital-como-tributan/)
 - Abogado Tributario: [CCSS scale for independents 2026](https://abogadotributario.cr/blog/el-costo-de-ser-trabajador-independiente-en-costa-rica/)
 
+## Legal texts (laws/)
+
+Verbatim norms are tracked in [laws/registry.json](laws/registry.json) and ingested with `cli ingest`. Phase 2 (first ingestion): Código de Trabajo, Ley 7983, Ley Constitutiva de la CCSS, CNPT and its reglamento, Ley 7092 and its reglamento, Ley 9635, Ley del IVA and its reglamento. None stored yet: SCIJ and the `.go.cr` sites are not reachable from the cloud environment (see docs/legal-engine.md, section 6).
+
 ## Gaps to fill next (in priority order)
 
 1. **Primary texts from SCIJ** (blocked from the cloud container): Ley 7092 consolidated (art. 23 corporate 30% rate, partial payments, chapter XI capital income rates and exemptions, art. 59 remittances), CNPT arts. 109 and 119, Reglamento del IVA.

@@ -1,7 +1,7 @@
 [project]
 name = "cr-tax-kb"
 version = "0.1.0"
-description = "Costa Rica tax and accounting knowledge base with an MCP server"
+description = "Costa Rica tax, labor and legal knowledge base with verbatim legal texts and an MCP server"
 requires-python = ">=3.10"
 dependencies = []
 

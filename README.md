@@ -16,6 +16,8 @@ As of 2026-10-08. Not legal or tax advice: final positions on a return belong to
 | procedimiento | [tribu-cr](corpus/procedimiento/tribu-cr.md) (form codes), [calendar](corpus/procedimiento/calendar.md) |
 | ccss | [ccss-independientes](corpus/ccss/ccss-independientes.md) |
 
+**Legal texts** ([laws/](laws/)): verbatim laws, decrees and reglamentos stored article by article, with version date, reform notes, status (vigente or derogado) and source hash. The catalog of norms to hold (labor, CCSS, tax, accounting, commercial, general) is [laws/registry.json](laws/registry.json); the design is in [docs/legal-engine.md](docs/legal-engine.md). Ingestion is set up; texts are added as sources become reachable.
+
 Every document has YAML frontmatter with its sources, the date it was checked, whether the rule is in force, and how strong its backing is (`primary` law text, `official` Hacienda/CCSS document, or `secondary` analysis). Gaps and pending primary texts are tracked in [SOURCES.md](SOURCES.md).
 
 ## Ways to use it
@@ -37,7 +39,7 @@ Every document has YAML frontmatter with its sources, the date it was checked, w
 
 Claude Code: `claude mcp add cr-tax-kb -- python3 /absolute/path/to/cr-tax-kb/src/cr_tax_kb/mcp_server.py`. Inside this repo the bundled [.mcp.json](.mcp.json) already registers it.
 
-Tools: `search_tax_kb(query, k?, topic?)`, `get_document(id)`, `list_documents(topic?)`, `get_sources(id?)`. Each document is also a resource at `crtax://doc/<id>`.
+Tools: `search_tax_kb(query, k?, topic?)`, `get_document(id)`, `list_documents(topic?)`, `get_sources(id?)` for the guides, and `search_law(query, k?, area?, norm?)`, `get_article(norm, article)`, `list_norms(area?)` for the verbatim legal texts. Each document is also a resource at `crtax://doc/<id>`.
 
 **3. Command line**
 
@@ -45,7 +47,19 @@ Tools: `search_tax_kb(query, k?, topic?)`, `get_document(id)`, `list_documents(t
 PYTHONPATH=src python3 -m cr_tax_kb.cli search "¿cómo tributa la venta de bitcoin?"
 PYTHONPATH=src python3 -m cr_tax_kb.cli show crypto-assets
 PYTHONPATH=src python3 -m cr_tax_kb.cli list
+PYTHONPATH=src python3 -m cr_tax_kb.cli norms
+PYTHONPATH=src python3 -m cr_tax_kb.cli article ley-2 29
+PYTHONPATH=src python3 -m cr_tax_kb.cli law "preaviso despido" --area laboral
 ```
+
+Ingest a norm from the registry, from its SCIJ id or from a file saved in a browser (HTML or PDF):
+
+```
+PYTHONPATH=src python3 -m cr_tax_kb.cli ingest ley-2
+PYTHONPATH=src python3 -m cr_tax_kb.cli ingest ley-2 --file ~/Downloads/codigo-trabajo.html --url "https://pgrweb.go.cr/scij/..."
+```
+
+The ingester refuses a source whose title does not match the registry, and reports numbering gaps and duplicates as warnings in `norm.json`.
 
 **4. Data files** for apps and vector databases: [data/index.json](data/index.json) (document manifest) and [data/chunks.jsonl](data/chunks.jsonl) (one citable section per line with metadata). Regenerate with `PYTHONPATH=src python3 -m cr_tax_kb.cli export`.
 
