@@ -321,6 +321,77 @@ def _collapse_ws(s: str) -> str:
     return re.sub(r"\s+", " ", s.strip())
 
 
+_ELLIPSIS_SPLIT = re.compile(
+    r"\s*(?:\[\.\.\.\]|\[…\]|\(\.\.\.\)|…|\.\.\.)\s*"
+)
+_QUOTE_WRAP_CHARS = "\"'\u201c\u201d\u00ab\u00bb"
+
+
+def _split_quote_segments(quote: str) -> list[str]:
+    parts = _ELLIPSIS_SPLIT.split(quote)
+    return [p for p in parts if p.strip()]
+
+
+def _strip_quote_segment(segment: str) -> str:
+    s = segment.strip()
+    while len(s) >= 2 and s[0] in _QUOTE_WRAP_CHARS and s[-1] in _QUOTE_WRAP_CHARS:
+        s = s[1:-1].strip()
+    while s and s[0] in _QUOTE_WRAP_CHARS:
+        s = s[1:].strip()
+    while s and s[-1] in _QUOTE_WRAP_CHARS:
+        s = s[:-1].strip()
+    s = re.sub(r"^[\s\-•*]+", "", s)
+    s = re.sub(r"^\d+\s*[\.\)\-]+\s*", "", s)
+    s = re.sub(r"^[a-zA-ZáéíóúÁÉÍÓÚñÑ]\s*[\.\)\-]+\s*", "", s)
+    s = re.sub(r"[.,;:]+$", "", s.strip())
+    return s.strip()
+
+
+def _segment_matches_at(haystack: str, start: int, seg: str) -> bool:
+    end = start + len(seg)
+    if end > len(haystack) or not seg:
+        return False
+    chunk = haystack[start:end]
+    if chunk[0].casefold() != seg[0].casefold():
+        return False
+    return len(seg) == 1 or chunk[1:] == seg[1:]
+
+
+def _find_segment_in_haystack(haystack: str, seg: str, from_pos: int) -> int | None:
+    if not seg:
+        return from_pos
+    limit = len(haystack) - len(seg) + 1
+    for i in range(from_pos, max(from_pos, limit)):
+        if _segment_matches_at(haystack, i, seg):
+            return i
+    return None
+
+
+def _quote_matches_haystack(quote: str, haystack: str) -> bool:
+    hay = _collapse_ws(haystack)
+    pos = 0
+    found_segment = False
+    for part in _split_quote_segments(quote):
+        seg = _collapse_ws(_strip_quote_segment(part))
+        if not seg:
+            continue
+        found_segment = True
+        at = _find_segment_in_haystack(hay, seg, pos)
+        if at is None:
+            return False
+        pos = at + len(seg)
+    return found_segment
+
+
+def _check_quote_against_cited(quote: str, stored_cited: list[str], units: dict, norm_keys: dict) -> tuple[bool, str | None]:
+    for cid in stored_cited:
+        u = units[norm_keys[cid]]
+        combined = f"{u.text} {' '.join(u.notes)}"
+        if _quote_matches_haystack(quote, combined):
+            return True, norm_keys[cid]
+    return False, None
+
+
 def grade(record: dict, question: dict, units: dict) -> dict:
     """Deterministic grading from parsed footer and question metadata."""
     footer = record.get("parsed_footer") or {}
@@ -332,22 +403,18 @@ def grade(record: dict, question: dict, units: dict) -> dict:
     quotes = [q for q in (footer.get("quotes") or []) if isinstance(q, str) and q.strip()]
     norm_keys = {_norm_id(k): k for k in units}
     stored_cited = [c for c in cited if c in norm_keys]
+    quote_checks: list[dict] = []
     quote_verbatim = False
     if quotes and stored_cited:
         quote_verbatim = True
         for q in quotes:
-            qn = _collapse_ws(q)
-            found = False
-            for cid in stored_cited:
-                u = units[norm_keys[cid]]
-                text = _collapse_ws(u.text)
-                notes = _collapse_ws(" ".join(u.notes))
-                if qn in text or qn in notes:
-                    found = True
-                    break
-            if not found:
+            ok, unit_id = _check_quote_against_cited(q, stored_cited, units, norm_keys)
+            preview = q.replace("\n", " ")
+            quote_checks.append(
+                {"quote": preview if len(preview) <= 80 else preview[:77] + "...", "ok": ok, "unit": unit_id}
+            )
+            if not ok:
                 quote_verbatim = False
-                break
 
     resp_covered = footer.get("covered")
     is_q_covered = bool(question.get("covered"))
@@ -357,6 +424,7 @@ def grade(record: dict, question: dict, units: dict) -> dict:
     return {
         "right_unit": right_unit,
         "quote_verbatim": quote_verbatim,
+        "quote_checks": quote_checks,
         "false_refusal": false_refusal,
         "refusal_correct": refusal_correct,
         "parsed_cited": cited,
@@ -549,6 +617,26 @@ def _truncate(s: str, n: int = 200) -> str:
     return s if len(s) <= n else s[: n - 3] + "..."
 
 
+def regrade_file(path: Path) -> None:
+    """Recompute grades and summary for an existing results file (no Claude calls)."""
+    _setup_path()
+    from cr_tax_kb.search import KnowledgeBase
+
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    kb = KnowledgeBase()
+    units = kb.units
+    records = doc.get("records") or []
+    for rec in records:
+        question = rec.get("question") or {}
+        grades = grade({"parsed_footer": rec.get("parsed_footer")}, question, units)
+        rec["grades"] = grades
+    conditions = doc.get("metadata", {}).get("conditions")
+    if not conditions:
+        conditions = sorted({r.get("condition") for r in records if r.get("condition")})
+    doc["summary"] = {c: _summarize(records, c) for c in conditions}
+    path.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def dry_run(
     conditions: list[str],
     questions: list[dict],
@@ -667,6 +755,7 @@ def main() -> int:
     parser.add_argument("--ids", default=None, help="Comma-separated question ids")
     parser.add_argument("--jobs", type=int, default=2)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--regrade", type=Path, default=None, help="Recompute grades for existing results JSON")
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--claude", default="claude", dest="claude_bin")
     args = parser.parse_args()
@@ -683,6 +772,13 @@ def main() -> int:
 
     if args.dry_run:
         return dry_run(conditions, questions, args.claude_bin, args.model)
+
+    if args.regrade:
+        regrade_file(args.regrade)
+        summaries = json.loads(args.regrade.read_text(encoding="utf-8"))["summary"]
+        _print_summary(summaries)
+        print(f"\nRegraded {args.regrade}")
+        return 0
 
     _setup_path()
     from cr_tax_kb.search import KnowledgeBase

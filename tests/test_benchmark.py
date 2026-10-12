@@ -190,6 +190,71 @@ class AgentHarnessTest(unittest.TestCase):
         g2 = agent.grade({"parsed_footer": bad_footer}, question, units)
         self.assertFalse(g2["quote_verbatim"])
 
+    @classmethod
+    def _kb_units(cls):
+        from cr_tax_kb.search import KnowledgeBase
+
+        kb = KnowledgeBase()
+        if not kb.units:
+            raise unittest.SkipTest("laws/ has no ingested norms")
+        return kb.units
+
+    def test_quote_ellipsis_split(self):
+        units = self._kb_units()
+        quote = (
+            "La Caja podrá ordenar, administrativamente, el cierre del establecimiento, local o centro "
+            "donde se realiza la actividad cuando: [...] b) Cuando exista mora por más de dos meses "
+            "en el pago de las cuotas correspondientes, siempre y cuando no medie ningún proceso de "
+            "arreglo de pago o declaratorio de derechos entre el patrono y la Caja."
+        )
+        footer = {"cited": ["ley-17:art-48"], "quotes": [quote], "covered": True}
+        question = {"covered": True, "expected": ["ley-17:art-48"]}
+        g = agent.grade({"parsed_footer": footer}, question, units)
+        self.assertTrue(g["quote_verbatim"])
+        self.assertTrue(g["quote_checks"][0]["ok"])
+
+    def test_quote_trailing_punctuation(self):
+        units = self._kb_units()
+        quote = (
+            "Salvo lo dicho en disposiciones especiales o que se tratare de un caso protegido por la "
+            "Ley de Seguro Social, la única obligación del patrono es la de dar licencia al trabajador, "
+            "hasta su total restablecimiento, siempre que éste se produzca dentro del lapso indicado."
+        )
+        footer = {"cited": ["ley-2:art-79"], "quotes": [quote], "covered": True}
+        question = {"covered": True, "expected": ["ley-2:art-79"]}
+        g = agent.grade({"parsed_footer": footer}, question, units)
+        self.assertTrue(g["quote_verbatim"])
+
+    def test_quote_first_letter_case(self):
+        units = self._kb_units()
+        quote = (
+            "no deduzca la cuota obrera mencionada en el artículo 30 de esta ley, no pague la cuota "
+            "patronal o que le corresponde como trabajador independiente."
+        )
+        footer = {"cited": ["ley-17:art-44"], "quotes": [quote], "covered": True}
+        question = {"covered": True, "expected": ["ley-17:art-30"]}
+        g = agent.grade({"parsed_footer": footer}, question, units)
+        self.assertTrue(g["quote_verbatim"])
+
+    def test_quote_stitched_sentences_fail(self):
+        units = self._kb_units()
+        quote = (
+            "La trabajadora podrá optar por la reinstalación o dar por terminado el contrato de trabajo "
+            "con responsabilidad patronal. En todo caso, el empleador o la empleadora deberán pagarle, "
+            "además de la indemnización a que tenga derecho y en concepto de daños y perjuicios, las sumas "
+            "correspondientes al subsidio de preparto y posparto, y los salarios que hubiera dejado de "
+            "percibir desde el momento del despido, hasta completar ocho meses de embarazo."
+        )
+        footer = {
+            "cited": ["ley-2:art-94", "ley-2:art-94-bis"],
+            "quotes": [quote],
+            "covered": True,
+        }
+        question = {"covered": True, "expected": ["ley-2:art-94"]}
+        g = agent.grade({"parsed_footer": footer}, question, units)
+        self.assertFalse(g["quote_verbatim"])
+        self.assertFalse(g["quote_checks"][0]["ok"])
+
 
 if __name__ == "__main__":
     unittest.main()
