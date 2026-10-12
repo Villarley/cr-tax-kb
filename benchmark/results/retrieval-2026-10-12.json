@@ -1,0 +1,293 @@
+{
+  "metadata": {
+    "date_utc": "2026-10-12T16:27:43+00:00",
+    "git_commit": "uncommitted  40 files changed, 25843 insertions(+), 81 deletions(-)",
+    "python_version": "3.11.4",
+    "platform": "macOS-26.5.2-arm64-arm-64bit",
+    "questions_version": "2026-10-12",
+    "questions_status": "pending professional review",
+    "index_build_ms": 40.54,
+    "norms": {
+      "ley-17": {
+        "version_date": "2021-09-27",
+        "units": 79,
+        "title": "Ley Constitutiva de la Caja Costarricense de Seguro Social"
+      },
+      "ley-2": {
+        "version_date": "2025-08-20",
+        "units": 725,
+        "title": "Código de Trabajo"
+      },
+      "ley-4755": {
+        "version_date": "2025-11-13",
+        "units": 235,
+        "title": "Código de Normas y Procedimientos Tributarios"
+      },
+      "ley-6826": {
+        "version_date": "2026-04-07",
+        "units": 46,
+        "title": "Ley del Impuesto al Valor Agregado"
+      },
+      "ley-7092": {
+        "version_date": "2025-11-13",
+        "units": 121,
+        "title": "Ley del Impuesto sobre la Renta"
+      },
+      "ley-7983": {
+        "version_date": "2025-05-07",
+        "units": 112,
+        "title": "Ley de Protección al Trabajador"
+      },
+      "ley-9635": {
+        "version_date": "2026-04-07",
+        "units": 94,
+        "title": "Ley de Fortalecimiento de las Finanzas Públicas"
+      },
+      "reglamento-iva": {
+        "version_date": "2025-10-27",
+        "units": 92,
+        "title": "Reglamento de la Ley del Impuesto sobre el Valor Agregado"
+      },
+      "reglamento-procedimiento-tributario": {
+        "version_date": "2026-01-23",
+        "units": 288,
+        "title": "Reglamento de Procedimiento Tributario"
+      },
+      "reglamento-renta": {
+        "version_date": "2023-11-15",
+        "units": 122,
+        "title": "Reglamento de la Ley del Impuesto sobre la Renta"
+      }
+    }
+  },
+  "counts": {
+    "questions_total": 62,
+    "questions_covered": 52,
+    "questions_not_covered": 10
+  },
+  "retrieval": {
+    "hits_k": 10,
+    "no_area_filter": {
+      "n": 52,
+      "recall@1": 0.4230769230769231,
+      "recall@3": 0.75,
+      "recall@5": 0.8269230769230769,
+      "mrr@10": 0.593666056166056,
+      "by_area": {
+        "ccss": {
+          "n": 4,
+          "recall@1": 0.25,
+          "recall@3": 0.75,
+          "recall@5": 0.75,
+          "mrr@10": 0.4583333333333333
+        },
+        "laboral": {
+          "n": 24,
+          "recall@1": 0.5,
+          "recall@3": 0.7916666666666666,
+          "recall@5": 0.8333333333333334,
+          "mrr@10": 0.6529431216931217
+        },
+        "tributario": {
+          "n": 24,
+          "recall@1": 0.375,
+          "recall@3": 0.7083333333333334,
+          "recall@5": 0.8333333333333334,
+          "mrr@10": 0.5569444444444445
+        }
+      },
+      "by_style": {
+        "client": {
+          "n": 35,
+          "recall@1": 0.3142857142857143,
+          "recall@3": 0.6857142857142857,
+          "recall@5": 0.8,
+          "mrr@10": 0.5201133786848073
+        },
+        "professional": {
+          "n": 17,
+          "recall@1": 0.6470588235294118,
+          "recall@3": 0.8823529411764706,
+          "recall@5": 0.8823529411764706,
+          "mrr@10": 0.7450980392156863
+        }
+      }
+    },
+    "with_area_filter": {
+      "n": 52,
+      "recall@1": 0.46153846153846156,
+      "recall@3": 0.7692307692307693,
+      "recall@5": 0.8269230769230769,
+      "mrr@10": 0.6246184371184371,
+      "by_area": {
+        "ccss": {
+          "n": 4,
+          "recall@1": 0.5,
+          "recall@3": 0.75,
+          "recall@5": 0.75,
+          "mrr@10": 0.625
+        },
+        "laboral": {
+          "n": 24,
+          "recall@1": 0.5,
+          "recall@3": 0.7916666666666666,
+          "recall@5": 0.8333333333333334,
+          "mrr@10": 0.6529431216931217
+        },
+        "tributario": {
+          "n": 24,
+          "recall@1": 0.4166666666666667,
+          "recall@3": 0.75,
+          "recall@5": 0.8333333333333334,
+          "mrr@10": 0.5962301587301587
+        }
+      },
+      "by_style": {
+        "client": {
+          "n": 35,
+          "recall@1": 0.37142857142857144,
+          "recall@3": 0.7142857142857143,
+          "recall@5": 0.8,
+          "mrr@10": 0.5660997732426304
+        },
+        "professional": {
+          "n": 17,
+          "recall@1": 0.6470588235294118,
+          "recall@3": 0.8823529411764706,
+          "recall@5": 0.8823529411764706,
+          "mrr@10": 0.7450980392156863
+        }
+      }
+    }
+  },
+  "latency": {
+    "search_law_k5": {
+      "p50_ms": 1.7018545040627941,
+      "p95_ms": 2.7095943398308004,
+      "runs": 620
+    },
+    "get_unit": {
+      "p50_ms": 8.300412446260452e-05,
+      "p95_ms": 0.0001660577254369855,
+      "runs": 520
+    }
+  },
+  "approx_tokens": {
+    "format_units_search_k5": {
+      "mean": 2683.8467741935483,
+      "median": 2239.0,
+      "max": 10307.5,
+      "p95": 6619.800000000001
+    },
+    "format_units_expected_units": {
+      "mean": 784.6574074074074,
+      "median": 456.25,
+      "max": 5410.5
+    }
+  },
+  "refusal_score_study": {
+    "covered_top1_score": {
+      "mean": 29.053423076923078,
+      "min": 9.763,
+      "max": 58.613
+    },
+    "not_covered_top1_score": {
+      "mean": 21.7693,
+      "min": 12.721,
+      "max": 44.164
+    }
+  },
+  "scraping_baseline": {
+    "per_norm": [
+      {
+        "norm_id": "ley-17",
+        "version_date": "2021-09-27",
+        "units": 79,
+        "text_md_approx_tokens": 20093.5,
+        "html_raw_approx_tokens": 42229.25,
+        "html_lines_approx_tokens": 19719.0
+      },
+      {
+        "norm_id": "ley-2",
+        "version_date": "2025-08-20",
+        "units": 725,
+        "text_md_approx_tokens": 194090.75,
+        "html_raw_approx_tokens": 787648.0,
+        "html_lines_approx_tokens": 188974.25
+      },
+      {
+        "norm_id": "ley-4755",
+        "version_date": "2025-11-13",
+        "units": 235,
+        "text_md_approx_tokens": 70939.75,
+        "html_raw_approx_tokens": 199579.75,
+        "html_lines_approx_tokens": 68481.75
+      },
+      {
+        "norm_id": "ley-6826",
+        "version_date": "2026-04-07",
+        "units": 46,
+        "text_md_approx_tokens": 21533.75,
+        "html_raw_approx_tokens": 68412.25,
+        "html_lines_approx_tokens": 21170.25
+      },
+      {
+        "norm_id": "ley-7092",
+        "version_date": "2025-11-13",
+        "units": 121,
+        "text_md_approx_tokens": 59367.25,
+        "html_raw_approx_tokens": 195557.5,
+        "html_lines_approx_tokens": 57527.5
+      },
+      {
+        "norm_id": "ley-7983",
+        "version_date": "2025-05-07",
+        "units": 112,
+        "text_md_approx_tokens": 46893.75,
+        "html_raw_approx_tokens": 89091.0,
+        "html_lines_approx_tokens": 45839.5
+      },
+      {
+        "norm_id": "ley-9635",
+        "version_date": "2026-04-07",
+        "units": 94,
+        "text_md_approx_tokens": 72681.5,
+        "html_raw_approx_tokens": 413135.5,
+        "html_lines_approx_tokens": 72065.75
+      },
+      {
+        "norm_id": "reglamento-iva",
+        "version_date": "2025-10-27",
+        "units": 92,
+        "text_md_approx_tokens": 53336.25,
+        "html_raw_approx_tokens": 366198.5,
+        "html_lines_approx_tokens": 55083.0
+      },
+      {
+        "norm_id": "reglamento-procedimiento-tributario",
+        "version_date": "2026-01-23",
+        "units": 288,
+        "text_md_approx_tokens": 85489.5,
+        "html_raw_approx_tokens": 1009533.25,
+        "html_lines_approx_tokens": 79751.5
+      },
+      {
+        "norm_id": "reglamento-renta",
+        "version_date": "2023-11-15",
+        "units": 122,
+        "text_md_approx_tokens": 65485.75,
+        "html_raw_approx_tokens": 461305.0,
+        "html_lines_approx_tokens": 64952.0
+      }
+    ],
+    "total_approx_tokens": {
+      "text_md": 689911.75,
+      "html_raw": 3632690.0,
+      "html_lines": 673564.5
+    }
+  },
+  "token_comparison": {
+    "whole_relevant_norm_text_md_mean_approx_tokens": 105539.47115384616,
+    "engine_search_k5_plus_one_unit_mean_approx_tokens": 3506.0240384615386
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "id": "ley-17",
+  "title": "Ley Constitutiva de la Caja Costarricense de Seguro Social",
+  "number": "17",
+  "type": "ley",
+  "area": "ccss",
+  "rank": "ley",
+  "version_date": "2021-09-27",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=2340&param2=127333&param3=1",
+  "retrieved_at": "2026-10-12",
+  "source_sha256": "0f4beb388de985605f124dce7531ae287255781370ca6c317a6ff93f2a707311",
+  "units": 79,
+  "articles": 79,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 2,
+  "warnings": [],
+  "scij_version_label": "14 de 14",
+  "scij_article_count": 79
+}

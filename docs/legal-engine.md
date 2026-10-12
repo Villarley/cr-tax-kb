@@ -82,7 +82,7 @@ Unit record (one line of `articles.jsonl`):
   "area": "laboral",
   "rank": "ley",
   "version_date": "2026-05-12",
-  "source_url": "https://pgrweb.go.cr/scij/...",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=8045&param2=151754&param3=1",
   "retrieved_at": "2026-10-12",
   "source_sha256": "...",
   "text_sha256": "..."
@@ -159,14 +159,14 @@ Norm ids are assigned at ingest; law numbers below are confirmed against the sou
 
 ## 6. Ingestion pipeline
 
-1. **Acquire.** SCIJ consolidated text (`nrm_texto_completo.aspx`) is the default source, because SCIJ prints reform notes under each article. La Gaceta, Hacienda, MTSS and CCSS publish what SCIJ lacks (resolutions, yearly decrees, circulars). The ingester also accepts a file saved from a browser (HTML or PDF), so any source can enter the pipeline.
+1. **Acquire.** SCIJ consolidated text is the default source, because SCIJ prints reform notes under each article. Since 2026 SCIJ lives at `sinalevi.go.cr` (the old `pgrweb.go.cr/scij` links redirect there) and loads its text through two POST endpoints: `_CargarFicha` (version number, version date, article count) and `_CargarTextoCompleto` (the text, one fragment per unit, each followed by a "Ficha Artículo N" anchor). The ingester cuts units at those anchors, so SCIJ's own unit list decides the article count, and it checks that count against the ficha. Registry fields: `scij_nrm` (norm id, `param1`) and `scij_version` (version id, `param2`). La Gaceta, Hacienda, MTSS and CCSS publish what SCIJ lacks (resolutions, yearly decrees, circulars). The ingester also accepts a file saved from a browser (HTML or PDF), so any source can enter the pipeline.
 2. **Snapshot.** The raw file is hashed (SHA-256). The hash and URL go into `norm.json`.
 3. **Parse.** HTML or PDF to text lines, then split into units at "ARTÍCULO n" / "TRANSITORIO n" headings, tracking Libro / Título / Capítulo / Sección as the unit's path, and separating reform notes from the article text.
 4. **Validate.** Title must match the registry; numbering gaps and duplicates are reported; zero-unit parses fail.
 5. **Review and commit.** Diffs go through a PR. CI re-runs the checks.
 6. **Build.** Index for MCP (now) and Postgres + pgvector (app).
 
-Access constraint: the cloud environment used by Claude sessions cannot reach `pgrweb.go.cr`, `hacienda.go.cr` and most `.go.cr` hosts, and SCIJ disallows automated fetchers in robots.txt. Options: run `ingest` on Fact3's own machine for a short list of named norms at a slow rate, add the hosts to the cloud environment's allowed domains, or save pages from a browser and ingest the files. Legal texts are public, but SCIJ's terms of use should be checked before running a scheduled refresh against it.
+Access constraint: the cloud environment used by Claude sessions cannot reach `sinalevi.go.cr`, `hacienda.go.cr` and most `.go.cr` hosts, so ingestion runs on Fact3's own machine for a short list of named norms, at least 5 seconds between requests. Neither `pgrweb.go.cr` nor `sinalevi.go.cr` publishes a robots.txt (checked 2026-10-12). Raw pages are cached in `laws/.cache/` (gitignored) and `ingest` reuses them unless `--refresh` is passed. Legal texts are public, but SCIJ's terms of use should be checked before running a scheduled refresh against it.
 
 ## 7. Contract for AI clients
 

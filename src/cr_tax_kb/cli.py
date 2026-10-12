@@ -8,7 +8,7 @@
 
 Legal texts (laws/):
   python3 -m cr_tax_kb.cli norms                       # registry and what is stored
-  python3 -m cr_tax_kb.cli ingest ley-2 [--file saved.html|.pdf] [--url URL] [--force]
+  python3 -m cr_tax_kb.cli ingest ley-2 [--file saved.html|.pdf] [--url URL] [--force] [--refresh]
   python3 -m cr_tax_kb.cli article ley-2 29
   python3 -m cr_tax_kb.cli law "preaviso despido" [--area laboral] [--norm ley-2]
 """
@@ -95,7 +95,9 @@ def run_ingest(a):
     failed = 0
     for norm_id in a.norm_ids:
         try:
-            path, units, problems = laws.ingest(norm_id, file=a.file, url=a.url, force=a.force)
+            path, units, problems = laws.ingest(
+                norm_id, file=a.file, url=a.url, force=a.force, refresh=a.refresh
+            )
         except Exception as e:  # keep going with the next norm
             failed += 1
             print(f"FAIL {norm_id}: {e}", file=sys.stderr)
@@ -127,6 +129,7 @@ def main(argv=None):
     ing.add_argument("--file", help="saved HTML, PDF or text of the norm (one norm only)")
     ing.add_argument("--url", help="source URL (recorded as provenance with --file)")
     ing.add_argument("--force", action="store_true", help="write even if the title check fails")
+    ing.add_argument("--refresh", action="store_true", help="refetch from SCIJ even if cached")
     ar = sub.add_parser("article")
     ar.add_argument("norm")
     ar.add_argument("article")

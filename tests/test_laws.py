@@ -74,6 +74,66 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(laws.validate([]), ["no units found"])
 
 
+class ScijParserTest(unittest.TestCase):
+    """Real SCIJ (sinalevi.go.cr) cases: units are cut at SCIJ's 'Ficha Artículo' anchors."""
+
+    raw = (ROOT / "tests" / "fixtures" / "scij_sample.html").read_text(encoding="utf-8")
+    units, warnings = laws.parse_scij(raw, "x")
+
+    def by(self, kind, number):
+        return next(u for u in self.units if u["kind"] == kind and u["number"] == number)
+
+    def test_units_and_no_warnings(self):
+        got = [(u["kind"], u["number"]) for u in self.units]
+        self.assertEqual(got, [("articulo", "88"), ("articulo", "137"), ("articulo", "66 ch"), ("transitorio", "IV")])
+        self.assertEqual(self.warnings, [])
+
+    def test_newline_inside_paragraph_is_a_space(self):
+        # Word HTML has "Artículo\n88.-" inside one <p>: it must stay one heading line.
+        a = self.by("articulo", "88")
+        self.assertEqual(a["heading"], "")
+        self.assertIn("78, 79, 81 y 83 se reducirán", a["text"])
+        self.assertEqual(a["path"], ["TITULO I DISPOSICIONES PRELIMINARES", "CAPITULO UNICO Normas Tributarias"])
+        self.assertEqual(a["notes"], ["(Así reformado por el artículo 1º de la ley No.7900 de 3 de agosto de 1999)"])
+
+    def test_typo_heading_and_note_before_heading(self):
+        a = self.by("articulo", "137")
+        self.assertEqual(a["heading"], "")
+        self.assertEqual(a["notes"], ["(NOTA DE SINALEVI: Nota editorial previa al artículo.)"])
+
+    def test_letter_suffix_overrides_scij_label(self):
+        self.assertEqual(laws.unit_id("ley-7092", "articulo", self.by("articulo", "66 ch")["number"]), "ley-7092:art-66-ch")
+        self.assertEqual(unit_lookup_id("ley-7092", "66-CH"), "ley-7092:art-66-ch")
+
+    def test_annulled_transitorio(self):
+        t = self.by("transitorio", "IV")
+        self.assertEqual((t["status"], t["text"]), ("anulado", ""))
+        self.assertEqual(t["path"], ["Disposiciones Transitorias."])
+        self.assertEqual(unit_lookup_id("ley-7092", "transitorio 4"), "ley-7092:trans-IV")
+
+
+class MergeNoteLinesTest(unittest.TestCase):
+    def test_merges_enumerator_inside_note(self):
+        lines = [
+            "(Nota de Sinalevi: según resolución: a) uno.",
+            "b) dos.",
+            "c) tres.)",
+            "Texto del artículo.",
+        ]
+        self.assertEqual(
+            laws.merge_note_lines(lines),
+            ["(Nota de Sinalevi: según resolución: a) uno. b) dos. c) tres.)", "Texto del artículo."],
+        )
+
+    def test_does_not_merge_when_paren_never_closes(self):
+        lines = [
+            "(Así anulado por la Sala ... del",
+            "Texto que sigue.",
+            "f) Otra cosa.",
+        ]
+        self.assertEqual(laws.merge_note_lines(lines), lines)
+
+
 class IngestTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -146,7 +206,6 @@ class RegistryTest(unittest.TestCase):
     def test_lookup_ids(self):
         self.assertEqual(unit_lookup_id("ley-2", "Artículo 029"), "ley-2:art-29")
         self.assertEqual(unit_lookup_id("ley-2", "Transitorio único"), "ley-2:trans-UNICO")
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -56,7 +56,7 @@ Ingest a norm from the registry, from its SCIJ id or from a file saved in a brow
 
 ```
 PYTHONPATH=src python3 -m cr_tax_kb.cli ingest ley-2
-PYTHONPATH=src python3 -m cr_tax_kb.cli ingest ley-2 --file ~/Downloads/codigo-trabajo.html --url "https://pgrweb.go.cr/scij/..."
+PYTHONPATH=src python3 -m cr_tax_kb.cli ingest ley-2 --file ~/Downloads/codigo-trabajo.html --url "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=8045&param2=151754&param3=1"
 ```
 
 The ingester refuses a source whose title does not match the registry, and reports numbering gaps and duplicates as warnings in `norm.json`.
@@ -74,6 +74,8 @@ python3 -m unittest discover -s tests
 ```
 
 Checks frontmatter, source URLs, no em dashes, that `data/` matches the corpus, the MCP handshake, and the retrieval evals: [eval/questions.json](eval/questions.json) (right document) and [eval/sections.json](eval/sections.json) (right section). CI runs the same on every push.
+
+The legal engine has its own benchmark in [benchmark/](benchmark/README.md): 62 labor, CCSS and tax questions. It measures retrieval recall, latency and tokens per answer against reading the whole law, and an end-to-end agent comparison (engine, model memory, pasted law text). Latest numbers: [benchmark/RESULTS.md](benchmark/RESULTS.md).
 
 ## Used by
 

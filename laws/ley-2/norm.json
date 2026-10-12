@@ -1,0 +1,23 @@
+{
+  "id": "ley-2",
+  "title": "Código de Trabajo",
+  "number": "2",
+  "type": "ley",
+  "area": "laboral",
+  "rank": "ley",
+  "version_date": "2025-08-20",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=8045&param2=151754&param3=1",
+  "retrieved_at": "2026-10-12",
+  "source_sha256": "8e7699f2838b872bacae511d91cfde24cdbe9cceb38bb8b4d13759a546a1af4a",
+  "units": 725,
+  "articles": 725,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 35,
+  "warnings": [
+    "note not closed in source: articulo 345: (Mediante resolución de la Sala Constitucional N° 017697 del 24 de octubre de 2018, se anuló del inc",
+    "articulo 624: vigente text embeds roman-numbered ARTICULO heading"
+  ],
+  "scij_version_label": "62 de 64",
+  "scij_article_count": 725
+}

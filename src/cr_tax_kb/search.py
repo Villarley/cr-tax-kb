@@ -9,7 +9,7 @@ import re
 import sqlite3
 
 from .corpus import chunks_of, load_documents
-from .laws import load_norms, load_units
+from .laws import arabic_to_roman, load_norms, load_units
 
 STOPWORDS = set(
     """a al algo como con cual cuales cuando cuanto de del donde el ella en es
@@ -31,6 +31,42 @@ def match_expression(q):
     return " OR ".join(f'"{t}"*' for t in sorted(set(terms) | stems))
 
 
+# Costa Rican legal shorthand and related terms for law FTS only.
+LAW_SYNONYMS = {
+    "iva": ["valor", "agregado"],
+    "ccss": ["caja", "seguro", "social"],
+    "hacienda": ["administracion", "tributaria"],
+    "multa": ["sancion"],
+    "multas": ["sancion"],
+    "extra": ["extraordinaria"],
+    "extras": ["extraordinaria"],
+    "despedir": ["despido", "terminado"],
+    "despido": ["terminado"],
+    "renunciar": ["terminado"],
+    "embarazada": ["embarazo"],
+    "cobrar": ["prescripcion"],
+    "cobrarme": ["prescripcion"],
+    "exterior": ["remesas", "domiciliadas"],
+    "declarar": ["declaracion", "liquidar"],
+    "pagar": ["pago"],
+}
+
+
+def law_match_expression(q):
+    terms = [t for t in re.findall(r"\w+", fold(q)) if t not in STOPWORDS and len(t) > 1]
+    expanded = list(terms)
+    for t in terms:
+        for extra in LAW_SYNONYMS.get(t, ()):
+            expanded.append(extra)
+    stems = {t[: max(4, len(t) - 2)] for t in expanded if len(t) > 5}
+    return " OR ".join(f'"{t}"*' for t in sorted(set(expanded) | stems))
+
+
+# Transitorios and reglamentos repeat wording from the ruling article; favor the law article.
+LAW_KIND_PRIOR = {"transitorio": 0.6, "anexo": 0.8}
+LAW_RANK_PRIOR = {"decreto": 0.85}
+
+
 # Column weights for bm25(): title, section heading, section keywords,
 # document keywords, body text.
 W_TITLE, W_SECTION, W_SECTION_KW, W_DOC_KW, W_TEXT = 1.0, 2.0, 4.0, 0.5, 1.0
@@ -40,11 +76,17 @@ W_LAW_TITLE, W_LAW_PATH, W_LAW_HEADING, W_LAW_TEXT, W_LAW_NOTES = 0.5, 1.0, 2.0,
 
 def unit_lookup_id(norm, article):
     a = fold(article).strip().rstrip(".")
+    if a.startswith("anexo"):
+        n = re.sub(r"^anexo\s*", "", a).strip()
+        return f"{norm}:anexo-{n}"
     kind = "trans" if a.startswith("trans") else "art"
     a = re.sub(r"^(transitorio|trans\.?|articulo|art\.?)\s*", "", a).strip()
     a = re.sub(r"[°º]", "", a)
     if kind == "trans":
-        a = a.upper() if not a.isdigit() else a
+        m = re.match(r"^(\d+)\s*(.*)$", a)
+        if m:
+            a = arabic_to_roman(int(m.group(1))) + ((" " + m.group(2)) if m.group(2) else "")
+        a = a.upper().replace(" ", "-")
         return f"{norm}:trans-{a}"
     a = re.sub(r"\s+", "-", a.lstrip("0") or "0")
     return f"{norm}:art-{a}"
@@ -87,7 +129,7 @@ class KnowledgeBase:
             )
 
     def search_law(self, query, k=5, area=None, norm=None, include_repealed=False):
-        expr = match_expression(query)
+        expr = law_match_expression(query)
         if not expr or not self.units:
             return []
         sql = "SELECT unit_id, bm25(law_fts, 0, 0, 0, ?, ?, ?, ?, ?) AS score FROM law_fts WHERE law_fts MATCH ?"
@@ -99,13 +141,19 @@ class KnowledgeBase:
             sql += " AND norm_id = ?"
             args.append(norm)
         sql += " ORDER BY score LIMIT ?"
-        args.append(int(k) * 3)
-        hits = []
+        args.append(int(k) * 10)
+        candidates = []
         for unit_id, score in self.db.execute(sql, args):
             u = self.units[unit_id]
-            if u.status == "derogado" and not include_repealed:
+            rel = -score
+            prior = LAW_KIND_PRIOR.get(u.kind, 1.0) * LAW_RANK_PRIOR.get(u.rank, 1.0)
+            candidates.append((rel * prior, u))
+        candidates.sort(key=lambda row: row[0], reverse=True)
+        hits = []
+        for adj, u in candidates:
+            if u.status != "vigente" and not include_repealed:
                 continue
-            hits.append({**u.__dict__, "score": round(-score, 3)})
+            hits.append({**u.__dict__, "score": round(adj, 3)})
             if len(hits) == int(k):
                 break
         return hits
@@ -174,7 +222,9 @@ def format_units(units):
         return "No matching article in the stored legal texts. Use list_norms to see what is covered."
     parts = []
     for u in units:
-        label = "Artículo" if u["kind"] == "articulo" else "Transitorio"
+        label = {"articulo": "Artículo", "transitorio": "Transitorio", "anexo": "Anexo"}.get(
+            u["kind"], u["kind"]
+        )
         where = " > ".join(u["path"])
         notes = "\n".join(u["notes"])
         parts.append(
