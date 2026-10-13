@@ -1,0 +1,23 @@
+{
+  "id": "reglamento-procedimiento-tributario",
+  "title": "Reglamento de Procedimiento Tributario",
+  "number": "38277-H",
+  "type": "decreto",
+  "area": "tributario",
+  "rank": "decreto",
+  "version_date": "2026-01-23",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=76926&param2=149833&param3=1",
+  "retrieved_at": "2026-10-12",
+  "source_sha256": "53939bea94e2d58338bd69d7df8858c2876c8f56e8723464a3076b0d1910e57b",
+  "units": 288,
+  "articles": 282,
+  "transitorios": 6,
+  "anexos": 0,
+  "derogados": 1,
+  "warnings": [
+    "note not closed in source: articulo 70: (Así modificada su denominación por el artículo 12 del decreto ejecutivo N° 45500 del 23 de enero de",
+    "note not closed in source: articulo 117: (Así modificada su denominación por el artículo 20 del decreto ejecutivo N° 45500 del 23 de enero de"
+  ],
+  "scij_version_label": "9 de 9",
+  "scij_article_count": 282
+}
