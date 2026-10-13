@@ -85,6 +85,15 @@ class AgentHarnessTest(unittest.TestCase):
         self.assertEqual(parsed["usage"]["input_tokens"], 10)
         self.assertEqual(parsed["model_id"], "sonnet")
 
+    def test_parse_judge_raw_fenced_result(self):
+        inner = json.dumps({"verdict": "correct", "reason": "Coincide con la referencia."})
+        fenced = f"```json\n{inner}\n```"
+        outer = {"result": fenced, "usage": {"input_tokens": 1}, "total_cost_usd": 0.001}
+        raw = json.dumps(outer)
+        verdict, reason = agent.parse_judge_raw(raw)
+        self.assertEqual(verdict, "correct")
+        self.assertEqual(reason, "Coincide con la referencia.")
+
     def test_parse_stream_message_model_fallback(self):
         stream = [
             json.dumps(

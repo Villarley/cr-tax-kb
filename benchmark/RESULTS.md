@@ -31,22 +31,56 @@ There are 9 questions where the expected unit is not in the top 5. In most of th
 
 **Refusal.** The top-1 BM25 score is 29 on average for covered questions and 22 for not-covered ones, and the two ranges overlap (covered 10 to 59, not covered 13 to 44). A score threshold alone cannot detect "not covered". Refusal has to come from the model checking `list_norms` and reading the article, which is what the agent benchmark measures.
 
-## Agent, preliminary (manual run, not yet `agent.py`)
+## Agent benchmark (`agent.py`, run of 2026-10-12/13)
 
-Before `agent.py` existed, a fresh agent with no project context answered 22 of these questions (20 covered, 2 not covered). It used only the CLI equivalents of `search_law` and `get_article`.
+Model: `claude-sonnet-5` through the Claude Code CLI in headless mode (2.1.212), judged by the same model. Raw records, prompts and the judge prompt: [results/agent-2026-10-12.json](results/agent-2026-10-12.json).
+
+Condition A (engine tools only) ran all 62 questions. Condition B (model memory, no tools) stopped at 34 of 62 questions when the budget cap was reached: the 28 labor and CCSS questions plus the first 6 tax questions. Condition C (whole law pasted) was not run.
+
+**Paired, on the 34 questions both conditions answered (all covered):**
+
+| | A, engine | B, memory |
+| --- | --- | --- |
+| Expected article cited | 34 / 34 | 21 / 34 |
+| Quotes verbatim (checked against `articles.jsonl`) | 32 / 34 | 1 / 34 |
+| Judge: correct / partial / incorrect | 31 / 0 / 2 (1 unjudged) | 22 / 4 / 7 (1 unjudged) |
+| Said "not covered" when it was covered | 0 | 4 |
+
+**Condition A on all 62 questions:**
 
 | Measure | Result |
 | --- | --- |
-| Expected unit cited | 20 / 20 |
-| Quotes verbatim (checked against `articles.jsonl`) | 20 / 20 |
-| Correct "not covered" (aguinaldo, impuesto a personas jurídicas) | 2 / 2 |
-| Cost | about 128,000 tokens for all 22 questions (about 5,800 per question, including the agent's own context); 17 tool calls; 141 s (about 6.4 s per question) |
+| Expected article cited (52 covered) | 96% (50 / 52) |
+| Quotes verbatim | 85% (44 / 52) |
+| Judge correct (51 judged) | 94% correct, 6% incorrect |
+| Correct "not covered" (10 uncovered) | 9 / 10 (the 10th omitted its answer block) |
+| False refusals | 0 |
 
-In one case the agent read the article more carefully than the reference answer did. With three years of service, cesantía is 20.5 days per year (art. 29 c), not 19.5. The reference answer has been corrected.
+**Cost and time per answer:**
 
-## Agent benchmark (`agent.py`), pending
+| | A, engine | B, memory |
+| --- | --- | --- |
+| Input tokens, mean (median) | 41,300 (34,800) | 12,300 (12,300) |
+| Output tokens, mean | 1,570 | 3,380 |
+| Tool calls, mean | 1.9 | 0 |
+| Cost, mean (median) | $0.128 ($0.118) | $0.106 ($0.099) |
+| Wall time, mean (median) | 21 s (19 s) | 44 s (37 s) |
 
-This run compares conditions A (engine), B (model memory) and C (whole norm pasted), with programmatic quote checks and an LLM judge. It has been built and dry-run, but not run yet: headless `claude` on the benchmark machine needs `claude /login`. The dry run already shows one result for condition C. Every Código de Trabajo question needs about 194,000 tokens of prompt and is skipped at the 180,000 limit.
+The judge adds about $0.12 per answer. The whole run cost $22.06.
+
+**How to read this.**
+- Without the engine, the same model cites the right article in only 62% of answers and almost never quotes the law word for word. It also refuses 12% of answerable questions. With the engine it cites the right article in 96% of answers, quotes verbatim in 85% and is judged correct in 94%.
+- With the engine, answers are faster and shorter. Each one costs a little more because the article text comes into the context.
+- About 19,000 of the engine's input tokens are Claude Code's own fixed context. A leaner client (direct API with only the three tools) would pay mostly for the 3,500 tokens of law text measured above.
+
+**Known failures with the engine.**
+- lab-02: the model read the cesantía table of art. 29 as cumulative.
+- lab-07: the model stitched two sentences of art. 94 bis into one quote.
+- 2 covered questions where the expected article was not cited.
+- Remaining non-verbatim quotes: mostly paraphrases inside quotation marks.
+- Each case is in the results file with the grader's per-quote detail.
+
+**Earlier manual run.** Before `agent.py` existed, a fresh agent using only the CLI answered 22 of these questions. It cited the expected article in 20 / 20, quoted verbatim in 20 / 20 and refused both uncovered questions correctly.
 
 ## Limits
 

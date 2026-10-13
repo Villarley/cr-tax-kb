@@ -150,6 +150,74 @@ def _fill_judge_prompt(question: str, reference: str, candidate: str) -> str:
     )
 
 
+_VALID_JUDGE_VERDICTS = frozenset({"correct", "partial", "incorrect"})
+_JUDGE_FENCE = re.compile(r"^```(?:json)?\s*\n?(.*?)\n?```\s*$", re.DOTALL | re.IGNORECASE)
+_JUDGE_VERDICT_OBJ = re.compile(r'\{[^{}]*"verdict"\s*:\s*"[^"]*"[^{}]*\}', re.DOTALL)
+
+
+def _strip_judge_fence(text: str) -> str:
+    text = text.strip()
+    m = _JUDGE_FENCE.match(text)
+    if m:
+        return m.group(1).strip()
+    return text
+
+
+def _parse_judge_result_payload(text: str) -> dict | None:
+    text = _strip_judge_fence(text)
+    if not text:
+        return None
+    try:
+        parsed = json.loads(text)
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+    m = _JUDGE_VERDICT_OBJ.search(text)
+    if m:
+        try:
+            parsed = json.loads(m.group(0))
+            if isinstance(parsed, dict):
+                return parsed
+        except json.JSONDecodeError:
+            pass
+    return None
+
+
+def parse_judge_raw(raw: str) -> tuple[str | None, str | None]:
+    """Parse claude --output-format json judge output into (verdict, reason)."""
+    if not raw or not raw.strip():
+        return None, None
+    try:
+        outer = json.loads(raw)
+    except json.JSONDecodeError:
+        return None, None
+    if not isinstance(outer, dict):
+        return None, None
+    inner = outer.get("result")
+    if inner is None:
+        inner = outer.get("response")
+    if isinstance(inner, dict):
+        parsed = inner
+    elif isinstance(inner, str):
+        parsed = _parse_judge_result_payload(inner)
+    else:
+        return None, None
+    if not parsed:
+        return None, None
+    verdict = parsed.get("verdict")
+    reason = parsed.get("reason")
+    if isinstance(verdict, str):
+        verdict = verdict.strip().lower()
+    else:
+        verdict = None
+    if verdict not in _VALID_JUDGE_VERDICTS:
+        verdict = None
+    if reason is not None and not isinstance(reason, str):
+        reason = None
+    return verdict, reason
+
+
 def _norm_id(s: str) -> str:
     return re.sub(r"\s+", "", s.strip().lower())
 
@@ -470,8 +538,7 @@ def _judge(
     ]
     lines, wall, rc = _run_claude(argv, REPO_ROOT, CALL_TIMEOUT_S)
     raw = "\n".join(lines)
-    verdict = None
-    reason = None
+    verdict, reason = parse_judge_raw(raw)
     usage = {}
     cost = None
     model_id = None
@@ -485,14 +552,6 @@ def _judge(
                 m = outer.get("model")
                 if isinstance(m, str) and m:
                     model_id = m
-            inner = outer.get("result") or outer.get("response") or ""
-            if isinstance(inner, str):
-                parsed = json.loads(inner)
-            else:
-                parsed = inner
-            if isinstance(parsed, dict):
-                verdict = parsed.get("verdict")
-                reason = parsed.get("reason")
     except json.JSONDecodeError:
         pass
     return {
@@ -630,6 +689,11 @@ def regrade_file(path: Path) -> None:
         question = rec.get("question") or {}
         grades = grade({"parsed_footer": rec.get("parsed_footer")}, question, units)
         rec["grades"] = grades
+        judge = rec.get("judge")
+        if isinstance(judge, dict) and judge.get("raw"):
+            verdict, reason = parse_judge_raw(judge["raw"])
+            judge["verdict"] = verdict
+            judge["reason"] = reason
     conditions = doc.get("metadata", {}).get("conditions")
     if not conditions:
         conditions = sorted({r.get("condition") for r in records if r.get("condition")})
