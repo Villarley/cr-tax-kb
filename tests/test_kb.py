@@ -49,7 +49,8 @@ class CorpusTest(unittest.TestCase):
 
     def test_no_em_dashes(self):
         for path in list(ROOT.rglob("*.md")) + [ROOT / "llms.txt"]:
-            if ".git" not in path.parts:
+            # laws/ holds verbatim legal text, which keeps the source's punctuation.
+            if ".git" not in path.parts and "laws" not in path.relative_to(ROOT).parts:
                 self.assertNotIn("—", path.read_text(encoding="utf-8"), path)
 
     def test_generated_files_current(self):
@@ -98,7 +99,7 @@ class McpTest(unittest.TestCase):
         out = {r["id"]: r for r in map(json.loads, proc.stdout.splitlines())}
         self.assertEqual(sorted(out), [1, 2, 3, 4, 5])
         self.assertEqual(out[1]["result"]["serverInfo"]["name"], "cr-tax-kb")
-        self.assertEqual(len(out[2]["result"]["tools"]), 4)
+        self.assertEqual(len(out[2]["result"]["tools"]), 7)
         self.assertIn("crypto-assets#", out[3]["result"]["content"][0]["text"])
         self.assertIn("art. 8", out[4]["result"]["contents"][0]["text"])
         self.assertEqual(out[5]["error"]["code"], -32601)

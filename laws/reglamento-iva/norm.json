@@ -1,0 +1,20 @@
+{
+  "id": "reglamento-iva",
+  "title": "Reglamento de la Ley del Impuesto sobre el Valor Agregado",
+  "number": "41779-H",
+  "type": "decreto",
+  "area": "tributario",
+  "rank": "decreto",
+  "version_date": "2025-10-27",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=88953&param2=148633&param3=1",
+  "retrieved_at": "2026-10-12",
+  "source_sha256": "0d4498bab042d8469d8772fbe223ec533b95d9d3260f05fa99ee2ac0028a7fff",
+  "units": 92,
+  "articles": 74,
+  "transitorios": 18,
+  "anexos": 0,
+  "derogados": 0,
+  "warnings": [],
+  "scij_version_label": "16 de 16",
+  "scij_article_count": 74
+}

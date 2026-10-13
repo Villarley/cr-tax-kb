@@ -5,6 +5,12 @@
   python3 -m cr_tax_kb.cli list
   python3 -m cr_tax_kb.cli export        # writes data/index.json and data/chunks.jsonl
   python3 -m cr_tax_kb.cli eval [-k 3]
+
+Legal texts (laws/):
+  python3 -m cr_tax_kb.cli norms                       # registry and what is stored
+  python3 -m cr_tax_kb.cli ingest ley-2 [--file saved.html|.pdf] [--url URL] [--force] [--refresh]
+  python3 -m cr_tax_kb.cli article ley-2 29
+  python3 -m cr_tax_kb.cli law "preaviso despido" [--area laboral] [--norm ley-2]
 """
 
 import argparse
@@ -12,7 +18,8 @@ import json
 import sys
 
 from .corpus import REPO_ROOT, chunks_of
-from .search import KnowledgeBase, format_hits
+from . import laws
+from .search import KnowledgeBase, format_hits, format_units
 
 
 def export(kb, out=REPO_ROOT / "data"):
@@ -54,6 +61,14 @@ def llms_txt(kb):
             if d.topic == topic:
                 lines.append(f"- [{d.title}]({d.path}): as of {d.as_of}, {d.status}, backed by {d.verified}")
         lines.append("")
+    if kb.norms:
+        lines += ["## Legal texts (verbatim, article level)", ""]
+        for n in kb.norms.values():
+            lines.append(
+                f"- [{n['title']}](laws/{n['id']}/text.md): {n['units']} units, version {n['version_date'] or 'unknown'},"
+                f" retrieved {n['retrieved_at']}"
+            )
+        lines.append("")
     return "\n".join(lines)
 
 
@@ -74,6 +89,26 @@ def run_eval(kb, k=3):
     return total_hits, total
 
 
+def run_ingest(a):
+    if a.file and len(a.norm_ids) > 1:
+        sys.exit("--file takes one norm id")
+    failed = 0
+    for norm_id in a.norm_ids:
+        try:
+            path, units, problems = laws.ingest(
+                norm_id, file=a.file, url=a.url, force=a.force, refresh=a.refresh
+            )
+        except Exception as e:  # keep going with the next norm
+            failed += 1
+            print(f"FAIL {norm_id}: {e}", file=sys.stderr)
+            continue
+        print(f"OK   {norm_id}: {len(units)} units -> {path}")
+        for p in problems:
+            print(f"     warning: {p}")
+    if failed:
+        sys.exit(1)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="cr-tax-kb")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -88,7 +123,24 @@ def main(argv=None):
     sub.add_parser("export")
     e = sub.add_parser("eval")
     e.add_argument("-k", type=int, default=3)
+    sub.add_parser("norms")
+    ing = sub.add_parser("ingest")
+    ing.add_argument("norm_ids", nargs="+")
+    ing.add_argument("--file", help="saved HTML, PDF or text of the norm (one norm only)")
+    ing.add_argument("--url", help="source URL (recorded as provenance with --file)")
+    ing.add_argument("--force", action="store_true", help="write even if the title check fails")
+    ing.add_argument("--refresh", action="store_true", help="refetch from SCIJ even if cached")
+    ar = sub.add_parser("article")
+    ar.add_argument("norm")
+    ar.add_argument("article")
+    lw = sub.add_parser("law")
+    lw.add_argument("query")
+    lw.add_argument("-k", type=int, default=5)
+    lw.add_argument("--area")
+    lw.add_argument("--norm")
     a = ap.parse_args(argv)
+    if a.cmd == "ingest":
+        return run_ingest(a)
     kb = KnowledgeBase()
     if a.cmd == "search":
         hits = kb.search(a.query, a.k, a.topic)
@@ -101,6 +153,18 @@ def main(argv=None):
     elif a.cmd == "list":
         for d in kb.docs.values():
             print(f"{d.id:32} {d.topic:14} {d.verified:10} {d.title}")
+    elif a.cmd == "norms":
+        for r in laws.load_registry():
+            n = kb.norms.get(r["id"])
+            state = f"{n['units']} units, version {n['version_date'] or '?'}" if n else f"not ingested (phase {r['phase']})"
+            print(f"{r['id']:36} {r['area']:11} {state:34} {r['title']}")
+    elif a.cmd == "article":
+        u = kb.get_unit(a.norm, a.article)
+        if not u:
+            sys.exit(f"Not found: {a.norm} {a.article}")
+        print(format_units([u.__dict__]))
+    elif a.cmd == "law":
+        print(format_units(kb.search_law(a.query, a.k, a.area, a.norm)))
     elif a.cmd == "export":
         print(f"Wrote {export(kb)}")
     else:

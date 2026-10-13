@@ -1,0 +1,20 @@
+{
+  "id": "ley-6826",
+  "title": "Ley del Impuesto al Valor Agregado",
+  "number": "6826",
+  "type": "ley",
+  "area": "tributario",
+  "rank": "ley",
+  "version_date": "2026-04-07",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=32526&param2=150649&param3=1",
+  "retrieved_at": "2026-10-12",
+  "source_sha256": "1de37172021cb4753b5653ac40a32e41978b5503325960e0646fd95b34a1c283",
+  "units": 46,
+  "articles": 46,
+  "transitorios": 0,
+  "anexos": 0,
+  "derogados": 0,
+  "warnings": [],
+  "scij_version_label": "31 de 31",
+  "scij_article_count": 46
+}

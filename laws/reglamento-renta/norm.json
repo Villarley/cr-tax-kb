@@ -1,0 +1,20 @@
+{
+  "id": "reglamento-renta",
+  "title": "Reglamento de la Ley del Impuesto sobre la Renta",
+  "number": "43198-H",
+  "type": "decreto",
+  "area": "tributario",
+  "rank": "decreto",
+  "version_date": "2023-11-15",
+  "source_url": "https://sinalevi.go.cr/ResultadosNormativa/Informacion?param1=95992&param2=139872&param3=1",
+  "retrieved_at": "2026-10-12",
+  "source_sha256": "361e2cdd0d784662ae6a4ecdfad89a8a4d9c1e239bd0967cea6c135831291100",
+  "units": 122,
+  "articles": 111,
+  "transitorios": 9,
+  "anexos": 2,
+  "derogados": 0,
+  "warnings": [],
+  "scij_version_label": "5 de 5",
+  "scij_article_count": 111
+}
