@@ -16,10 +16,12 @@ from pathlib import Path
 if __package__ in (None, ""):  # allow running as a plain script
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     from cr_tax_kb import __version__
+    from cr_tax_kb.company import CompanyKB, format_company_hits, source_from_env
     from cr_tax_kb.laws import load_registry
     from cr_tax_kb.search import KnowledgeBase, format_hits, format_units
 else:
     from . import __version__
+    from .company import CompanyKB, format_company_hits, source_from_env
     from .laws import load_registry
     from .search import KnowledgeBase, format_hits, format_units
 
@@ -39,6 +41,13 @@ quoting a part you have not seen. If search_law prints a coverage warning, tell
 the user that norm is not stored yet. Quote the article and cite its id (e.g. ley-2:art-29) and version
 date. If a norm or article is not stored, say so instead of answering from memory.
 Keep law (the article) separate from interpretation (explainers, oficios)."""
+
+COMPANY_INSTRUCTIONS = """
+
+Fact3's own processes, templates and client notes are in a separate knowledge
+base: search_fact3, get_fact3_doc, list_fact3_docs. Use them for how Fact3 does
+things or what was agreed with a client, and the tax tools for what the law says.
+Pass client= when the question is about one client."""
 
 TOOLS = [
     {
@@ -130,9 +139,50 @@ TOOLS += [
 ]
 
 
+COMPANY_TOOLS = [
+    {
+        "name": "search_fact3",
+        "title": "Search Fact3 processes and client notes",
+        "description": "Search Fact3's internal knowledge base: processes, checklists, templates and "
+        "per-client notes. Returns matching sections with the document path.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Question or keywords, e.g. 'cierre mensual'"},
+                "client": {"type": "string", "description": "Optional: only this client's documents, e.g. 'GrantFox'"},
+                "k": {"type": "integer", "description": "Max results (default 5)", "minimum": 1, "maximum": 20},
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "get_fact3_doc",
+        "title": "Get a Fact3 document",
+        "description": "Full text of one Fact3 document by its path, as returned by search_fact3 or list_fact3_docs.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"path": {"type": "string", "description": "e.g. 'Procesos/Cierre mensual'"}},
+            "required": ["path"],
+        },
+    },
+    {
+        "name": "list_fact3_docs",
+        "title": "List Fact3 documents",
+        "description": "List Fact3's documents and clients, optionally for one client.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"client": {"type": "string", "description": "Optional client name"}},
+        },
+    },
+]
+
+
 class Server:
-    def __init__(self, kb=None):
+    def __init__(self, kb=None, company=None):
         self.kb = kb or KnowledgeBase()
+        if company is None and source_from_env():
+            company = CompanyKB(source_from_env())
+        self.company = company
 
     def handle(self, msg):
         method, params, mid = msg.get("method"), msg.get("params") or {}, msg.get("id")
@@ -153,12 +203,12 @@ class Server:
                 "protocolVersion": requested if requested in SUPPORTED_VERSIONS else SUPPORTED_VERSIONS[0],
                 "capabilities": {"tools": {}, "resources": {}},
                 "serverInfo": {"name": "cr-tax-kb", "version": __version__},
-                "instructions": INSTRUCTIONS,
+                "instructions": INSTRUCTIONS + (COMPANY_INSTRUCTIONS if self.company else ""),
             }
         if method == "ping":
             return {}
         if method == "tools/list":
-            return {"tools": TOOLS}
+            return {"tools": TOOLS + (COMPANY_TOOLS if self.company else [])}
         if method == "tools/call":
             return self.call_tool(params.get("name"), params.get("arguments") or {})
         if method == "resources/list":
@@ -232,7 +282,29 @@ class Server:
                 if r["id"] not in self.kb.norms and (not area or r["area"] == area)
             ]
             return text(json.dumps({"stored": stored, "registered_not_ingested": pending}, ensure_ascii=False, indent=2))
+        if self.company and name in ("search_fact3", "get_fact3_doc", "list_fact3_docs"):
+            return self.call_company_tool(name, args, text)
         return text(f"Unknown tool: {name}", error=True)
+
+    def call_company_tool(self, name, args, text):
+        co = self.company
+        co.refresh()
+        note = f"\n\n[Could not refresh from the source ({co.error}); showing the last copy.]" if co.error else ""
+        if name == "search_fact3":
+            hits = co.search(args.get("query", ""), args.get("k", 5), args.get("client"))
+            return text(format_company_hits(hits) + note)
+        if name == "get_fact3_doc":
+            d = co.get(args.get("path", ""))
+            if not d:
+                return text("Unknown document. Use list_fact3_docs to see the paths." + note, error=True)
+            return text(f"# {d.path}\n" + (f"[{d.url}]\n" if d.url else "") + f"\n{d.text}" + note)
+        client = args.get("client")
+        rows = [
+            {"path": d.path, "client": d.client, "modified": d.modified}
+            for d in sorted(co.docs.values(), key=lambda d: d.path)
+            if not client or (d.client or "").lower() == client.lower()
+        ]
+        return text(json.dumps({"clients": co.clients(), "documents": rows}, ensure_ascii=False, indent=2) + note)
 
 
 def main():
