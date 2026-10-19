@@ -65,8 +65,8 @@ class HttpTest(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual([r["id"] for r in out], [7])
 
-    def test_healthz(self):
-        with urllib.request.urlopen(self.base + "/healthz") as r:
+    def test_health(self):
+        with urllib.request.urlopen(self.base + "/health") as r:
             self.assertEqual(r.read(), b"ok")
 
 
