@@ -8,6 +8,7 @@ dependencies = []
 [project.scripts]
 cr-tax-kb = "cr_tax_kb.cli:main"
 cr-tax-kb-mcp = "cr_tax_kb.mcp_server:main"
+cr-tax-kb-http = "cr_tax_kb.http_server:main"
 
 [build-system]
 requires = ["setuptools>=61"]
