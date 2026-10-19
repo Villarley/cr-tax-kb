@@ -47,7 +47,10 @@ COMPANY_INSTRUCTIONS = """
 Fact3's own processes, templates and client notes are in a separate knowledge
 base: search_fact3, get_fact3_doc, list_fact3_docs. Use them for how Fact3 does
 things or what was agreed with a client, and the tax tools for what the law says.
-Pass client= when the question is about one client."""
+Pass client= when the question is about one client.
+These tools only read. To create or edit a Fact3 document, use the Google Drive
+or Google Docs connector: the folder is "Fact3 KB" and results carry each doc's
+URL. Edits show up here within 5 minutes."""
 
 TOOLS = [
     {
