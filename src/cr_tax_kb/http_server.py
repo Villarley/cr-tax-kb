@@ -7,7 +7,7 @@ custom connectors, the Claude apps, other hosted agents. Standard library only.
 
 Endpoint: POST /mcp/<token>, or POST /mcp with "Authorization: Bearer <token>".
 Without CR_TAX_KB_TOKEN the endpoint is plain /mcp with no auth (local use only).
-GET /healthz answers "ok" for the host's health checks.
+GET /health answers "ok" for health checks (/healthz too, but Cloud Run reserves it).
 """
 
 import hmac
@@ -54,7 +54,7 @@ def make_handler(server, token):
             self.wfile.write(body)
 
         def do_GET(self):
-            if self.path == "/healthz":
+            if self.path in ("/health", "/healthz"):  # Cloud Run reserves paths ending in z
                 return self.send(200, b"ok", "text/plain")
             if self.authorized():  # no server-initiated stream
                 return self.send(405, b"Method not allowed", "text/plain")
@@ -103,6 +103,8 @@ def main():
     token = os.environ.get("CR_TAX_KB_TOKEN") or None
     port = int(os.environ.get("PORT", "8080"))
     host = os.environ.get("HOST", "0.0.0.0" if token else "127.0.0.1")
+    if not token and os.environ.get("K_SERVICE"):  # set by Cloud Run
+        sys.exit("CR_TAX_KB_TOKEN is not set. Add it to the service (Variables & secrets) and redeploy.")
     if not token:
         sys.stderr.write("CR_TAX_KB_TOKEN not set: serving /mcp without auth on localhost only.\n")
     httpd = serve(host, port, token)
