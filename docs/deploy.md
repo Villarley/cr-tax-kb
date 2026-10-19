@@ -34,7 +34,7 @@ One time, in the Google Cloud console:
    - Authentication: **Allow unauthenticated invocations** (the token in the path is the access control)
    - Container port 8080, memory 512 MiB, CPU 1, minimum instances 0, maximum instances 2
    - Variables & secrets: expose secret `cr-tax-kb-token` as env var `CR_TAX_KB_TOKEN` (required: without it the container exits at start and the deploy fails with "failed to start and listen on the port")
-5. Deploy. The service URL looks like `https://cr-tax-kb-xxxxx-uc.a.run.app`. Check `https://<service-url>/healthz` answers `ok`.
+5. Deploy. The service URL looks like `https://cr-tax-kb-xxxxx-uc.a.run.app`. Check `https://<service-url>/health` answers `ok` (not `/healthz`: Cloud Run reserves URL paths ending in `z` and answers them with its own 404).
 
 The connector URL is `https://<service-url>/mcp/<token>`.
 
