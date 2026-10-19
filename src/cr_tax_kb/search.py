@@ -5,17 +5,26 @@ files to keep in sync. Accents are folded and Spanish words are crudely
 stemmed, so "facturas" finds "factura" and "exportacion" finds "exportación".
 """
 
+import json
 import re
 import sqlite3
+from pathlib import Path
 
 from .corpus import chunks_of, load_documents
-from .laws import arabic_to_roman, load_norms, load_units
+from .laws import LAWS_DIR, arabic_to_roman, load_norms, load_registry, load_units
 
 STOPWORDS = set(
     """a al algo como con cual cuales cuando cuanto de del donde el ella en es
     esta este esto la las le lo los me mi mis o para pero por que se si sin
     sobre su sus te tiene tengo un una uno y ya the of to and in is for what
     how do does i my on are be""".split()
+)
+# Question filler that matches thousands of articles and buries the useful terms.
+LAW_STOPWORDS = STOPWORDS | set(
+    """puedo puede pueden debo debe deben hay cuanto cuanta cuantos cuantas
+    cuando realidad algo alguna algun nada eso esa ese les nos tienen tengan
+    tener hacer hace pasa pasar quiero quieren necesito estoy esta estan ser
+    son fue era mas menos muy otro otra todo todos cada porque pregunta""".split()
 )
 
 
@@ -52,8 +61,10 @@ LAW_SYNONYMS = {
 }
 
 
-def law_match_expression(q):
-    terms = [t for t in re.findall(r"\w+", fold(q)) if t not in STOPWORDS and len(t) > 1]
+def law_match_expression(q, extra=()):
+    terms = [t for t in re.findall(r"\w+", fold(q)) if t not in LAW_STOPWORDS and len(t) > 1]
+    for phrase in extra:
+        terms += [t for t in re.findall(r"\w+", fold(phrase)) if t not in LAW_STOPWORDS and len(t) > 1]
     expanded = list(terms)
     for t in terms:
         for extra in LAW_SYNONYMS.get(t, ()):
@@ -92,6 +103,21 @@ def unit_lookup_id(norm, article):
     return f"{norm}:art-{a}"
 
 
+def _stem(w):
+    return w[: max(4, len(w) - 2)] if len(w) > 5 else w
+
+
+def _phrase_matches(phrase, words):
+    return all(any(w.startswith(_stem(t)) for w in words) for t in re.findall(r"\w+", fold(phrase)))
+
+
+def load_concepts(root=None):
+    path = Path(root or LAWS_DIR) / "concepts.json"
+    if not path.exists():
+        return []
+    return json.loads(path.read_text(encoding="utf-8"))["concepts"]
+
+
 class KnowledgeBase:
     def __init__(self, root=None, laws_root=None):
         self.docs = {d.id: d for d in load_documents(root)}
@@ -118,6 +144,8 @@ class KnowledgeBase:
         """Primary texts (laws/), one row per article or transitorio."""
         self.units = {u.id: u for u in load_units(laws_root)}
         self.norms = {n["id"]: n for n in load_norms(laws_root)}
+        self.concepts = load_concepts(laws_root)
+        self.registry = {r["id"]: r for r in load_registry(laws_root)} if self.norms else {}
         self.db.execute(
             """CREATE VIRTUAL TABLE law_fts USING fts5(unit_id UNINDEXED, area UNINDEXED, norm_id UNINDEXED,
             norm_title, path, heading, text, notes, tokenize='unicode61 remove_diacritics 2')"""
@@ -128,10 +156,45 @@ class KnowledgeBase:
                 (u.id, u.area, u.norm_id, u.norm_title, " / ".join(u.path), u.heading, u.text, " ".join(u.notes)),
             )
 
+    def match_concepts(self, query):
+        """Concepts whose triggers appear in the query, best first, as (score, concept)."""
+        words = re.findall(r"\w+", fold(query))
+        scored = []
+        for c in self.concepts:
+            score = sum(len(re.findall(r"\w+", t)) for t in c["triggers"] if _phrase_matches(t, words))
+            score += 0.5 * sum(1 for t in c.get("weak", []) if _phrase_matches(t, words))
+            if score >= 1:
+                scored.append((score, c))
+        scored.sort(key=lambda row: row[0], reverse=True)
+        return scored
+
+    def coverage_warnings(self, query, area=None):
+        """Registered norms that the matched concepts need but that are not ingested."""
+        out = []
+        for _, c in self.match_concepts(query):
+            if area and c["area"] != area:
+                continue
+            for nid in c.get("pending", []):
+                if nid not in self.norms and nid in self.registry:
+                    out.append({"concept": c["label"], "norm": nid, "title": self.registry[nid]["title"]})
+        return out
+
     def search_law(self, query, k=5, area=None, norm=None, include_repealed=False):
-        expr = law_match_expression(query)
+        concepts = self.match_concepts(query)
+        if area:
+            concepts = [(s, c) for s, c in concepts if c["area"] == area]
+        extra = [t for _, c in concepts for t in c.get("expand", [])]
+        expr = law_match_expression(query, extra)
         if not expr or not self.units:
             return []
+
+        def allowed(u):
+            if area and u.area != area:
+                return False
+            if norm and u.norm_id != norm:
+                return False
+            return u.status == "vigente" or include_repealed
+
         sql = "SELECT unit_id, bm25(law_fts, 0, 0, 0, ?, ?, ?, ?, ?) AS score FROM law_fts WHERE law_fts MATCH ?"
         args = [W_LAW_TITLE, W_LAW_PATH, W_LAW_HEADING, W_LAW_TEXT, W_LAW_NOTES, expr]
         if area:
@@ -149,14 +212,25 @@ class KnowledgeBase:
             prior = LAW_KIND_PRIOR.get(u.kind, 1.0) * LAW_RANK_PRIOR.get(u.rank, 1.0)
             candidates.append((rel * prior, u))
         candidates.sort(key=lambda row: row[0], reverse=True)
-        hits = []
+
+        # Central articles of the best matching concept(s) go first, then the
+        # first anchor of any weaker concept, then keyword ranking. Anchors carry
+        # the best keyword score so score thresholds keep working.
+        best = round(candidates[0][0], 3) if candidates else 0.0
+        hits, seen = [], set()
+        top = concepts[0][0] if concepts else None
+        for score, c in concepts:
+            for uid in c["anchors"] if score == top else c["anchors"][:1]:
+                u = self.units.get(uid)
+                if u and uid not in seen and allowed(u):
+                    seen.add(uid)
+                    hits.append({**u.__dict__, "score": best, "why": c["label"]})
         for adj, u in candidates:
-            if u.status != "vigente" and not include_repealed:
+            if u.id in seen or not allowed(u):
                 continue
-            hits.append({**u.__dict__, "score": round(adj, 3)})
-            if len(hits) == int(k):
-                break
-        return hits
+            seen.add(u.id)
+            hits.append({**u.__dict__, "score": round(adj, 3), "why": None})
+        return hits[: int(k)]
 
     def get_unit(self, norm, article):
         """Exact lookup. `article` accepts '29', 'art 29', '29 bis', 'transitorio I'
@@ -217,8 +291,44 @@ def format_hits(hits):
     return "\n\n---\n\n".join(parts)
 
 
-def format_units(units):
-    if not units:
+EXCERPT_CHARS = 500
+
+
+def excerpt(text, query, limit=EXCERPT_CHARS):
+    """The passage of `text` that best matches `query`, about `limit` characters."""
+    if len(text) <= limit + 150:
+        return text
+    words = {_stem(t) for t in re.findall(r"\w+", fold(query)) if t not in LAW_STOPWORDS and len(t) > 2}
+    # Inciso and paragraph breaks first; long paragraphs split into sentences.
+    parts = []
+    for para in re.split(r"\n+", text):
+        parts += re.split(r"(?<=[.;:])\s+", para) if len(para) > limit else [para]
+    parts = [p for p in parts if p.strip()]
+
+    def hits(p):
+        f = fold(p)
+        return sum(1 for w in words if w in f)
+
+    best = max(range(len(parts)), key=lambda i: (hits(parts[i]), -i))
+    lo = hi = best
+    size = len(parts[best])
+    while size < limit and (lo > 0 or hi < len(parts) - 1):
+        if hi < len(parts) - 1:
+            hi += 1
+            size += len(parts[hi]) + 1
+        elif lo > 0:
+            lo -= 1
+            size += len(parts[lo]) + 1
+    out = " ".join(parts[lo : hi + 1])
+    if len(out) > limit * 2:
+        out = out[: limit * 2].rsplit(" ", 1)[0]
+    return ("... " if lo > 0 else "") + out + (" ..." if hi < len(parts) - 1 or len(out) < len(" ".join(parts[lo:hi + 1])) else "")
+
+
+def format_units(units, query=None, warnings=()):
+    """Articles as text. With `query`, long articles are cut to the passage that
+    matches it (search results); without it, full text (get_article)."""
+    if not units and not warnings:
         return "No matching article in the stored legal texts. Use list_norms to see what is covered."
     parts = []
     for u in units:
@@ -227,13 +337,22 @@ def format_units(units):
         )
         where = " > ".join(u["path"])
         notes = "\n".join(u["notes"])
+        body = u["text"] if query is None else excerpt(u["text"], query)
+        cut = query is not None and body != u["text"]
         parts.append(
             f"### {u['norm_title']}, {label} {u['number']}\n"
             f"[cite: {u['id']} | {u['rank']} | status: {u['status']} | version {u['version_date'] or 'unknown'}"
             f" | retrieved {u['retrieved_at']}]\n"
+            + (f"Why: central article for \"{u['why']}\"\n" if u.get("why") else "")
             + (f"{where}\n" if where else "")
-            + f"\n{u['text']}\n"
-            + (f"\n{notes}\n" if notes else "")
+            + f"\n{body}\n"
+            + (f"\n[Excerpt of {len(u['text'])} characters: get_article(\"{u['norm_id']}\", \"{u['number']}\") for the full text]\n" if cut else "")
+            + (f"\n{notes}\n" if notes and not cut else "")
             + f"\nSource: {u['source_url']}"
+        )
+    for w in warnings:
+        parts.append(
+            f"Coverage warning: \"{w['concept']}\" is also governed by {w['title']} ({w['norm']}), "
+            "which is registered but not stored yet. The answer may be incomplete; say so."
         )
     return "\n\n---\n\n".join(parts)

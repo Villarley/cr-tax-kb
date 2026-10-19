@@ -34,7 +34,9 @@ amounts, and leave final positions on a return to a licensed accountant.
 
 Verbatim legal texts (laws, decrees, reglamentos) are served article by article:
 get_article for an exact article, search_law to find articles, list_norms for
-coverage. Quote the article and cite its id (e.g. ley-2:art-29) and version
+coverage. search_law returns excerpts of long articles: call get_article before
+quoting a part you have not seen. If search_law prints a coverage warning, tell
+the user that norm is not stored yet. Quote the article and cite its id (e.g. ley-2:art-29) and version
 date. If a norm or article is not stored, say so instead of answering from memory.
 Keep law (the article) separate from interpretation (explainers, oficios)."""
 
@@ -89,7 +91,9 @@ TOOLS += [
         "name": "search_law",
         "title": "Search Costa Rican legal texts",
         "description": "Search the verbatim text of stored Costa Rican laws, decrees and reglamentos at article "
-        "level. Returns articles with citation id, version date, status and source URL.",
+        "level. Everyday wording works ('tengo jefe pero facturo'): the central article for a known concept comes "
+        "first, marked 'Why'. Long articles come as the matching excerpt; call get_article for the full text. "
+        "Warns when a relevant norm is registered but not stored yet.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -98,6 +102,7 @@ TOOLS += [
                 "area": {"type": "string", "description": AREA_DESC},
                 "norm": {"type": "string", "description": "Optional norm id, e.g. 'ley-2'"},
                 "include_repealed": {"type": "boolean", "description": "Include derogated articles"},
+                "full_text": {"type": "boolean", "description": "Return whole articles instead of excerpts"},
             },
             "required": ["query"],
         },
@@ -204,11 +209,12 @@ class Server:
                 return text("Unknown id.", error=True)
             return text(json.dumps(out, ensure_ascii=False, indent=2))
         if name == "search_law":
+            query = args.get("query", "")
             hits = self.kb.search_law(
-                args.get("query", ""), args.get("k", 5), args.get("area"), args.get("norm"),
-                bool(args.get("include_repealed")),
+                query, args.get("k", 5), args.get("area"), args.get("norm"), bool(args.get("include_repealed")),
             )
-            return text(format_units(hits))
+            warnings = self.kb.coverage_warnings(query, args.get("area"))
+            return text(format_units(hits, None if args.get("full_text") else query, warnings))
         if name == "get_article":
             norm = args.get("norm", "")
             if norm not in self.kb.norms:
