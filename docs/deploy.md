@@ -72,6 +72,8 @@ One time:
 2. Share the `Fact3 KB` folder as **Viewer** with the service's account. Find it with `gcloud run services describe cr-tax-kb-git --region europe-west1 --format='value(spec.template.spec.serviceAccountName)'`; if empty, it is the default `<project-number>-compute@developer.gserviceaccount.com`.
 3. Set the folder id (the last part of the folder's URL): `gcloud run services update cr-tax-kb-git --region europe-west1 --update-env-vars FACT3_DRIVE_FOLDER_ID=<id>`.
 
+Editing goes through each person's own Google Drive connector in Claude (share the folder with them as Editor), so changes carry their name; the service account cannot create files in a personal Drive (no storage quota), only in a Shared Drive.
+
 Everyone with the connector URL can read every document in the folder, all clients included. Keep anything that must stay with fewer people outside it. Per-person access is a later step.
 
 Local use: `FACT3_KB_DIR=/path/to/folder/of/md` instead of the Drive id. `FACT3_REFRESH_SECONDS` changes the refresh interval (default 300).
