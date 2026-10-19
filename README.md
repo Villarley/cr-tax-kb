@@ -41,6 +41,8 @@ Claude Code: `claude mcp add cr-tax-kb -- python3 /absolute/path/to/cr-tax-kb/sr
 
 Tools: `search_tax_kb(query, k?, topic?)`, `get_document(id)`, `list_documents(topic?)`, `get_sources(id?)` for the guides, and `search_law(query, k?, area?, norm?)`, `get_article(norm, article)`, `list_norms(area?)` for the verbatim legal texts. Each document is also a resource at `crtax://doc/<id>`.
 
+**Hosted (HTTP)**: the same tools over Streamable HTTP for Claude on the web and phone (custom connectors): `CR_TAX_KB_TOKEN=<secret> python3 -m cr_tax_kb.http_server`, or the [Dockerfile](Dockerfile). Deployment to Google Cloud Run and connector setup: [docs/deploy.md](docs/deploy.md).
+
 **3. Command line**
 
 ```
