@@ -262,7 +262,7 @@ def run(k_latency_reps: int = 10) -> dict:
     search_fmt_tokens = []
     for q in questions:
         hits = kb.search_law(q["question"], 5)
-        search_fmt_tokens.append(approx_tokens(format_units(hits)))
+        search_fmt_tokens.append(approx_tokens(format_units(hits, q["question"], kb.coverage_warnings(q["question"]))))
 
     expected_fmt_tokens = []
     for q in covered:
@@ -299,7 +299,7 @@ def run(k_latency_reps: int = 10) -> dict:
         if text_path.is_file():
             whole_norm_tokens.append(approx_tokens(text_path.read_text(encoding="utf-8")))
         hits = kb.search_law(q["question"], 5)
-        eng = approx_tokens(format_units(hits))
+        eng = approx_tokens(format_units(hits, q["question"], kb.coverage_warnings(q["question"])))
         u = kb.units.get(q["expected"][0])
         if u:
             eng += approx_tokens(format_units([u.__dict__]))

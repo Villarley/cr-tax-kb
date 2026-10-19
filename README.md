@@ -69,6 +69,8 @@ The ingester refuses a source whose title does not match the registry, and repor
 
 BM25 over an in-memory SQLite FTS5 index, built at start from `corpus/`. Accents are folded and Spanish words are crudely stemmed. Body text is English with Spanish legal terms. Each section carries its own Spanish search terms in a hidden `<!-- es: ... -->` line (weighted highest), and each document's `keywords_es` adds a weaker document-level signal. Embedding search (to rank sections better across languages) is the next step; `data/chunks.jsonl` is ready to embed.
 
+`search_law` adds a concept map ([laws/concepts.json](laws/concepts.json)): when a question in everyday words matches a known concept (relación laboral, cesantía, IVA on exports, remesas...), its legal terms join the search and its central articles come first, marked `Why`. Long articles come back as the matching excerpt (about 500 characters) with a pointer to `get_article`, and a coverage warning names relevant norms that are registered but not stored yet.
+
 ## Quality checks
 
 ```

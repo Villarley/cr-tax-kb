@@ -1,0 +1,186 @@
+{
+  "description": "Concept map for search_law. People ask in everyday words ('tengo jefe pero facturo'), the law speaks of 'dependencia' and 'contrato individual de trabajo'. When a question matches a concept's triggers, its expand terms join the keyword search and its anchors (the central articles) go first. pending lists registered norms that would answer part of the question but are not ingested yet, so search_law can warn. Triggers are matched word by word in any order, accent-insensitive, with crude stems (a trigger word matches any query word starting with it, minus its last two letters when longer than five). weak triggers count half. Anchors must be read in the law before they are added. Status: written by Fact3 from the stored texts, pending professional review.",
+  "status": "pending professional review",
+  "version": "2026-10-19",
+  "concepts": [
+    {"id": "relacion-laboral", "area": "laboral", "label": "Existencia de relación laboral (contrato de trabajo frente a servicios profesionales)",
+     "triggers": ["relacion laboral", "soy empleado", "soy asalariado", "subordinacion", "servicios profesionales", "consultor independiente", "contrato de servicios", "contratista", "facturo", "exclusividad", "planilla o facturas", "contrato de trabajo"],
+     "weak": ["jefe", "horario", "ordenes", "gerente"],
+     "expand": ["contrato individual de trabajo", "dependencia", "direccion", "remuneracion", "trabajador", "patrono"],
+     "anchors": ["ley-2:art-18", "ley-2:art-4", "ley-2:art-2"], "pending": []},
+
+    {"id": "preaviso", "area": "laboral", "label": "Preaviso al terminar un contrato por tiempo indefinido",
+     "triggers": ["preaviso", "aviso previo", "avisar despido", "echar avisar", "botar avisar", "despedir avisar", "renunciar avisar", "anticipacion despido", "anticipacion renuncia"],
+     "weak": ["avisar", "anticipacion"],
+     "expand": ["preaviso", "aviso previo", "tiempo indefinido"],
+     "anchors": ["ley-2:art-28", "ley-2:art-30"], "pending": []},
+
+    {"id": "cesantia", "area": "laboral", "label": "Auxilio de cesantía por despido sin justa causa",
+     "triggers": ["cesantia", "liquidacion", "indemnizacion", "botan pagar", "echan pagar", "despiden pagar", "despidieron pagar", "despido injustificado", "sin razon", "sin justa causa", "despido con responsabilidad patronal"],
+     "weak": ["prestaciones"],
+     "expand": ["auxilio de cesantia", "despido injustificado"],
+     "anchors": ["ley-2:art-29", "ley-2:art-30"], "pending": []},
+
+    {"id": "despido-justificado", "area": "laboral", "label": "Causas justas de despido sin responsabilidad patronal",
+     "triggers": ["despedir sin pagar", "despido justificado", "despido sin responsabilidad", "causas de despido", "justa causa despedir", "despedir por faltas", "motivos despido"],
+     "weak": [],
+     "expand": ["causas justas", "dar por terminado", "sin responsabilidad"],
+     "anchors": ["ley-2:art-81", "ley-2:art-82"], "pending": []},
+
+    {"id": "renuncia-justificada", "area": "laboral", "label": "Causas justas para que el trabajador termine el contrato (despido indirecto)",
+     "triggers": ["despido indirecto", "renuncia justificada", "irme cobrar", "renunciar cobrar", "no pagan salario", "no me pagan", "salario incompleto", "rebajan salario sin permiso"],
+     "weak": [],
+     "expand": ["causas justas", "trabajador", "dar por terminado"],
+     "anchors": ["ley-2:art-83", "ley-2:art-29"], "pending": []},
+
+    {"id": "jornada", "area": "laboral", "label": "Jornada ordinaria máxima (diurna, nocturna, mixta)",
+     "triggers": ["jornada", "horas al dia", "horas por dia", "horas diarias", "horas por semana", "horas semanales", "cuantas horas trabajar", "turno noche", "trabajar de noche"],
+     "weak": ["turno"],
+     "expand": ["jornada ordinaria", "trabajo efectivo", "ocho horas"],
+     "anchors": ["ley-2:art-136", "ley-2:art-138"], "pending": []},
+
+    {"id": "horas-extra", "area": "laboral", "label": "Jornada extraordinaria (horas extra)",
+     "triggers": ["horas extra", "tiempo extra", "sobretiempo", "despues de la hora", "quedarme despues", "jornada extraordinaria"],
+     "weak": [],
+     "expand": ["jornada extraordinaria", "cincuenta por ciento"],
+     "anchors": ["ley-2:art-139", "ley-2:art-140"], "pending": []},
+
+    {"id": "vacaciones", "area": "laboral", "label": "Vacaciones anuales pagadas",
+     "triggers": ["vacaciones", "dias libres pagados", "dias libres", "descanso anual"],
+     "weak": [],
+     "expand": ["vacaciones anuales remuneradas"],
+     "anchors": ["ley-2:art-153"], "pending": []},
+
+    {"id": "embarazo", "area": "laboral", "label": "Protección por embarazo, lactancia y maternidad",
+     "triggers": ["embarazada", "embarazo", "lactancia", "maternidad", "licencia por maternidad"],
+     "weak": [],
+     "expand": ["embarazo", "lactancia"],
+     "anchors": ["ley-2:art-94", "ley-2:art-95"], "pending": []},
+
+    {"id": "prescripcion-laboral", "area": "laboral", "label": "Plazo para reclamar derechos laborales (prescripción)",
+     "triggers": ["reclamar patrono", "reclamar trabajo", "demandar patrono", "prescripcion laboral", "prescriben derechos laborales", "despues de que me fui"],
+     "weak": ["reclamar"],
+     "expand": ["prescribiran", "extincion", "contratos de trabajo"],
+     "anchors": ["ley-2:art-413", "ley-2:art-414"], "pending": []},
+
+    {"id": "salario-minimo", "area": "laboral", "label": "Salario mínimo",
+     "triggers": ["salario minimo", "sueldo minimo", "menos pagar sueldo", "menos pagar salario", "lo minimo que pagar"],
+     "weak": [],
+     "expand": ["salario minimo"],
+     "anchors": ["ley-2:art-177"], "pending": ["decreto-salarios-minimos"]},
+
+    {"id": "aguinaldo", "area": "laboral", "label": "Aguinaldo",
+     "triggers": ["aguinaldo", "decimo tercer mes", "treceavo"],
+     "weak": [], "expand": [], "anchors": [], "pending": ["ley-2412"]},
+
+    {"id": "teletrabajo", "area": "laboral", "label": "Teletrabajo",
+     "triggers": ["teletrabajo", "trabajo remoto", "trabajar desde casa", "home office"],
+     "weak": [], "expand": [], "anchors": [], "pending": ["ley-9738"]},
+
+    {"id": "hostigamiento", "area": "laboral", "label": "Hostigamiento sexual en el empleo",
+     "triggers": ["hostigamiento", "acoso sexual"],
+     "weak": [], "expand": [], "anchors": [], "pending": ["ley-7476"]},
+
+    {"id": "discapacidad", "area": "laboral", "label": "Personas con discapacidad en el empleo",
+     "triggers": ["discapacidad"],
+     "weak": [], "expand": [], "anchors": [], "pending": ["ley-7600"]},
+
+    {"id": "iva-exportacion", "area": "tributario", "label": "IVA en exportación de servicios (exención)",
+     "triggers": ["clientes exterior", "clientes extranjero", "clientes estados unidos", "clientes de afuera", "exportacion servicios", "exportar servicios", "cobrar 13", "servicios al exterior", "vendo afuera", "cliente fuera del pais"],
+     "weak": [],
+     "expand": ["exenciones", "exportaciones", "fuera del ambito territorial"],
+     "anchors": ["ley-6826:art-8"], "pending": []},
+
+    {"id": "iva-tarifa", "area": "tributario", "label": "Tarifa del IVA (general y reducidas)",
+     "triggers": ["tarifa iva", "cuanto es el iva", "impuesto suma vendo", "porcentaje iva", "impuesto de ventas", "iva reducido", "tarifa reducida"],
+     "weak": [],
+     "expand": ["tarifa del impuesto", "trece por ciento"],
+     "anchors": ["ley-6826:art-10", "ley-6826:art-11"], "pending": []},
+
+    {"id": "remesas-exterior", "area": "tributario", "label": "Impuesto sobre remesas al exterior (pagos a no domiciliados)",
+     "triggers": ["pago al exterior", "pagar al exterior", "otro pais", "no domiciliado", "proveedor extranjero", "remesas", "pagar extranjeros", "retener extranjero", "freelancer extranjero"],
+     "weak": [],
+     "expand": ["remesas", "domiciliadas en el exterior", "hecho generador"],
+     "anchors": ["ley-7092:art-53", "ley-7092:art-59", "ley-7092:art-54"], "pending": []},
+
+    {"id": "gastos-deducibles", "area": "tributario", "label": "Gastos deducibles del impuesto sobre la renta",
+     "triggers": ["gastos deducibles", "rebajar gastos", "gastos del negocio", "deducir gastos", "pagar menos impuesto", "deducciones renta"],
+     "weak": [],
+     "expand": ["gastos deducibles", "renta bruta"],
+     "anchors": ["ley-7092:art-8"], "pending": []},
+
+    {"id": "prescripcion-tributaria", "area": "tributario", "label": "Prescripción de la acción de Hacienda (años para fiscalizar y cobrar)",
+     "triggers": ["cuantos anos hacienda", "hacienda revisar", "hacienda revisarme", "prescripcion tributaria", "hacienda cobrar anos", "anos fiscalizar"],
+     "weak": [],
+     "expand": ["prescripcion", "determinar la obligacion"],
+     "anchors": ["ley-4755:art-51"], "pending": []},
+
+    {"id": "regimen-simplificado", "area": "tributario", "label": "Régimen de tributación simplificada",
+     "triggers": ["regimen simplificado", "tributacion simplificada", "pulperia", "negocio pequeno impuestos", "comerciante pequeno", "forma facil pagar impuestos"],
+     "weak": [],
+     "expand": ["regimen simplificado"],
+     "anchors": ["ley-6826:art-35"], "pending": []},
+
+    {"id": "omision-declaracion", "area": "tributario", "label": "Multa por no presentar declaraciones a tiempo",
+     "triggers": ["no presento declaracion", "no presentar declaracion", "declaracion tarde", "declarar tarde", "declaracion a tiempo", "multa declaracion", "omision declaracion"],
+     "weak": [],
+     "expand": ["omision de la presentacion", "declaraciones"],
+     "anchors": ["ley-4755:art-79"], "pending": []},
+
+    {"id": "renta-salario", "area": "tributario", "label": "Impuesto sobre el salario (retención mensual)",
+     "triggers": ["impuesto salario", "impuesto sueldo", "renta salario", "renta sueldo", "rebajan salario impuesto", "retencion salario"],
+     "weak": [],
+     "expand": ["escala de tarifas", "renta total percibida mensualmente"],
+     "anchors": ["ley-7092:art-33", "ley-7092:art-32", "ley-7092:art-34"], "pending": []},
+
+    {"id": "renta-territorialidad", "area": "tributario", "label": "Hecho generador del impuesto sobre la renta (territorialidad)",
+     "triggers": ["ingresos del exterior", "renta extranjera", "plata de afuera", "impuesto renta exterior", "territorialidad", "fuente costarricense", "clientes de afuera renta"],
+     "weak": [],
+     "expand": ["hecho generador", "fuente costarricense"],
+     "anchors": ["ley-7092:art-1", "ley-7092:art-54"], "pending": []},
+
+    {"id": "tramos-renta", "area": "tributario", "label": "Tramos y tarifas del impuesto sobre la renta",
+     "triggers": ["tramos renta", "tabla renta", "cuanto pago de renta", "tarifa renta"],
+     "weak": [],
+     "expand": ["tarifa del impuesto"],
+     "anchors": ["ley-7092:art-15"], "pending": ["decreto-tramos-renta"]},
+
+    {"id": "factura-electronica", "area": "tributario", "label": "Factura electrónica",
+     "triggers": ["factura electronica", "comprobante electronico", "emitir factura", "facturar hacienda", "tiquete electronico"],
+     "weak": [],
+     "expand": ["emision de factura", "comprobantes electronicos"],
+     "anchors": ["ley-6826:art-40"], "pending": ["res-dgt-0027-2024"]},
+
+    {"id": "impuesto-personas-juridicas", "area": "tributario", "label": "Impuesto a las personas jurídicas",
+     "triggers": ["impuesto personas juridicas", "impuesto sociedades", "impuesto a las sociedades"],
+     "weak": [], "expand": [], "anchors": [], "pending": ["ley-9428"]},
+
+    {"id": "zona-franca", "area": "tributario", "label": "Régimen de zonas francas",
+     "triggers": ["zona franca", "zonas francas"],
+     "weak": [], "expand": [], "anchors": [], "pending": ["ley-7210"]},
+
+    {"id": "seguro-obligatorio", "area": "ccss", "label": "Obligación de asegurar a los trabajadores en la CCSS",
+     "triggers": ["asegurar caja", "asegurado caja", "asegurado ccss", "seguro obligatorio", "inscribir caja", "planilla ccss", "reportar planilla"],
+     "weak": [],
+     "expand": ["seguro social", "obligatorias", "cuotas"],
+     "anchors": ["ley-17:art-3"], "pending": []},
+
+    {"id": "multas-ccss", "area": "ccss", "label": "Sanciones de la CCSS por no reportar o no pagar",
+     "triggers": ["multa caja", "multa ccss", "no reportar trabajador", "sancion caja", "no reportar planilla", "no asegurar trabajador"],
+     "weak": [],
+     "expand": ["transgresiones", "multa", "salarios omitidos"],
+     "anchors": ["ley-17:art-44"], "pending": []},
+
+    {"id": "ccss-independientes", "area": "ccss", "label": "Trabajadores independientes en la CCSS",
+     "triggers": ["independiente caja", "independiente ccss", "cotizar independiente", "asegurado voluntario", "trabajador independiente seguro"],
+     "weak": [],
+     "expand": ["trabajadores independientes"],
+     "anchors": ["ley-17:art-3"], "pending": ["reglamento-independientes"]},
+
+    {"id": "fcl-pension", "area": "laboral", "label": "Fondo de capitalización laboral y pensión complementaria",
+     "triggers": ["fondo de capitalizacion laboral", "fcl", "pension complementaria", "rop"],
+     "weak": [],
+     "expand": ["fondo de capitalizacion laboral", "regimen obligatorio de pensiones complementarias"],
+     "anchors": ["ley-7983:art-3", "ley-7983:art-13"], "pending": []}
+  ]
+}
