@@ -103,6 +103,8 @@ def main():
     token = os.environ.get("CR_TAX_KB_TOKEN") or None
     port = int(os.environ.get("PORT", "8080"))
     host = os.environ.get("HOST", "0.0.0.0" if token else "127.0.0.1")
+    if not token and os.environ.get("K_SERVICE"):  # set by Cloud Run
+        sys.exit("CR_TAX_KB_TOKEN is not set. Add it to the service (Variables & secrets) and redeploy.")
     if not token:
         sys.stderr.write("CR_TAX_KB_TOKEN not set: serving /mcp without auth on localhost only.\n")
     httpd = serve(host, port, token)
