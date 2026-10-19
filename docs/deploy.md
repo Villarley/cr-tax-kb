@@ -49,3 +49,29 @@ Claude Code: `claude mcp add --transport http cr-tax-kb https://<service-url>/mc
 ## Protocol notes
 
 Streamable HTTP transport, JSON responses only: `POST` carries one JSON-RPC message or a batch; notifications get `202`. There is no server-initiated stream, so `GET` and `DELETE` on the endpoint answer `405`. No session ids: every request is independent, which lets Cloud Run route requests to any instance.
+
+## Fact3 knowledge base (processes and clients)
+
+The same service can also serve Fact3's own documents (processes, templates, per-client notes) through three more tools: `search_fact3`, `get_fact3_doc` and `list_fact3_docs`. They appear only when a source is configured. The documents stay in Google Drive, where the team edits them as normal Google Docs; the service reads them and picks up edits within 5 minutes, with no redeploy.
+
+Folder layout (any names work; documents under `Clientes/<client>/` are tagged with that client, so a search can be limited to one client):
+
+```
+Fact3 KB/
+  Procesos/        Cierre mensual, Onboarding de cliente, ...
+  Plantillas/
+  Clientes/
+    GrantFox/      Plan, Acuerdos, ...
+```
+
+Google Docs, `.md` and `.txt` files are indexed; PDFs, sheets and images are skipped. Headings (Título 1 to 3) split a document into sections, so use them.
+
+One time:
+
+1. Enable the Drive API: `gcloud services enable drive.googleapis.com`.
+2. Share the `Fact3 KB` folder as **Viewer** with the service's account. Find it with `gcloud run services describe cr-tax-kb-git --region europe-west1 --format='value(spec.template.spec.serviceAccountName)'`; if empty, it is the default `<project-number>-compute@developer.gserviceaccount.com`.
+3. Set the folder id (the last part of the folder's URL): `gcloud run services update cr-tax-kb-git --region europe-west1 --update-env-vars FACT3_DRIVE_FOLDER_ID=<id>`.
+
+Everyone with the connector URL can read every document in the folder, all clients included. Keep anything that must stay with fewer people outside it. Per-person access is a later step.
+
+Local use: `FACT3_KB_DIR=/path/to/folder/of/md` instead of the Drive id. `FACT3_REFRESH_SECONDS` changes the refresh interval (default 300).
