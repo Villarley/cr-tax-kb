@@ -27,5 +27,6 @@ This repo is a knowledge base of Costa Rican tax and accounting rules. Use it to
 - Body in English, Spanish legal terms and short quotes from the law kept verbatim. Put Spanish search terms and typical questions in `keywords_es`.
 - `[[id]]` links point to other documents by id.
 - No em dashes.
+- `laws/concepts.json` maps everyday questions to the central articles ("tengo jefe pero facturo" to `ley-2:art-18`). Add a concept only after reading its anchor articles; list registered but missing norms under `pending` so search warns. Check with the colloquial questions in `benchmark/questions.json`.
 - Never edit `laws/<norm-id>/` by hand: re-run `cli ingest` so text, hashes and notes stay tied to the source. Add new norms to `laws/registry.json` first.
 - After editing: `PYTHONPATH=src python3 -m cr_tax_kb.cli export` and `python3 -m unittest discover -s tests`.

@@ -164,7 +164,7 @@ def main(argv=None):
             sys.exit(f"Not found: {a.norm} {a.article}")
         print(format_units([u.__dict__]))
     elif a.cmd == "law":
-        print(format_units(kb.search_law(a.query, a.k, a.area, a.norm)))
+        print(format_units(kb.search_law(a.query, a.k, a.area, a.norm), a.query, kb.coverage_warnings(a.query, a.area)))
     elif a.cmd == "export":
         print(f"Wrote {export(kb)}")
     else:
